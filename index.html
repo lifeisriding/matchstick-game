@@ -69,6 +69,20 @@ header .subtitle {
 }
 .rules-box.open { display: block; }
 .rules-box strong { color: #f0c040; }
+.rules-box .c-green { color: #30a060; font-weight: 600; }
+.rules-box .c-gold { color: #f0c040; font-weight: 600; }
+.rules-box .c-red { color: #d04040; font-weight: 600; }
+.rules-box .c-orange { color: #e08030; font-weight: 600; }
+.rules-box .c-purple { color: #a060d0; font-weight: 600; }
+.rules-box .c-blue { color: #4090d0; font-weight: 600; }
+.rules-box .metric-list { margin: 8px 0 4px 0; padding: 0; list-style: none; }
+.rules-box .metric-list li { margin-bottom: 6px; padding-left: 8px; border-left: 3px solid #1a3050; }
+.rules-box .metric-list li.m-green { border-left-color: #30a060; }
+.rules-box .metric-list li.m-gold { border-left-color: #f0c040; }
+.rules-box .metric-list li.m-red { border-left-color: #d04040; }
+.rules-box .metric-list li.m-orange { border-left-color: #e08030; }
+.rules-box .metric-list li.m-purple { border-left-color: #a060d0; }
+.rules-box .metric-list li.m-blue { border-left-color: #4090d0; }
 
 /* ===== Controls ===== */
 .controls {
@@ -327,8 +341,11 @@ header .subtitle {
   height: 100%;
   background: linear-gradient(90deg, #30a060, #f0c040);
   border-radius: 2px;
-  transition: width 0.4s;
+  transition: width 0.4s, background 0.3s;
   min-width: 0;
+}
+.inventory-bar-fill.full {
+  background: linear-gradient(90deg, #d04040, #e06040);
 }
 
 /* ===== Finished Goods Tray ===== */
@@ -428,11 +445,14 @@ header .subtitle {
 }
 
 /* ===== Stats Panel ===== */
+.stats-rows {
+  padding: 12px 20px 4px;
+}
 .stats-panel {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  padding: 16px 20px;
+  gap: 14px;
+  padding: 4px 0;
   flex-wrap: wrap;
 }
 .stat-card {
@@ -443,6 +463,11 @@ header .subtitle {
   padding: 10px 18px;
   min-width: 110px;
 }
+.stat-sub {
+  font-size: 0.75rem;
+  color: #506880;
+  margin-top: 1px;
+}
 .stat-value {
   font-size: 1.4rem;
   font-weight: 700;
@@ -451,6 +476,9 @@ header .subtitle {
 .stat-value.green { color: #30a060; }
 .stat-value.red { color: #d04040; }
 .stat-value.blue { color: #4090d0; }
+.stat-value.yellow { color: #f0c040; }
+.stat-value.orange { color: #e08030; }
+.stat-value.purple { color: #a060d0; }
 .stat-label {
   font-size: 0.7rem;
   color: #6088b0;
@@ -512,9 +540,25 @@ footer a:hover { color: #f0c040; }
   <button id="rulesBtn" onclick="toggleRules()">Show Rules</button>
 </div>
 <div class="rules-box" id="rulesBox">
-  <strong>How it works:</strong> A line of workers (stations) passes matches from left to right. Each round, every worker rolls a die to determine how many matches they <em>can</em> move. But they can only move as many as are available in their bowl. Station 1 draws from unlimited raw materials.<br><br>
+  <strong>How it works:</strong> A line of workers (stations) passes matches from left to right. Each round, every worker rolls a die to determine how many matches they <em>can</em> move. But they can only move as many as are available in their bowl (max capacity: 6). Station 1 draws from unlimited raw materials.<br><br>
   <strong>The insight:</strong> With a single die (average 3.5), you'd expect ~3.5 matches/round of throughput. But because <strong>statistical fluctuations</strong> combine with <strong>dependent events</strong> (each station depends on the previous), actual throughput drops well below the average. Negative fluctuations propagate downstream; positive fluctuations are wasted when there aren't enough matches to move.<br><br>
-  <strong>Controls:</strong> Click <strong>Roll</strong> to advance one round, or use <strong>Auto Play</strong> to run continuously. Adjust the number of stations (3-10) to see how line length affects throughput loss.
+  <strong>Controls:</strong> Click <strong>Roll</strong> to advance one round, or use <strong>Auto Play</strong> to run continuously. Adjust the number of stations (3-10) to see how line length affects throughput loss.<br><br>
+
+  <strong>Stats &amp; Chart Guide:</strong>
+  <ul class="metric-list">
+    <li class="m-gold"><span class="c-gold">Expected Throughput</span> (gold dashed line) &mdash; The expected throughput based on dice math: a six-sided die averages (1+2+3+4+5+6)&divide;6 = 3.5. If stations were independent (no starvation), output would average 3.5/round, so cumulative = 3.5 &times; rounds. The whole game exists to show why actual output falls below this line.</li>
+    <li class="m-green"><span class="c-green">Cumulative Actual</span> (green line) &mdash; What throughput <em>actually</em> is: total matches that made it all the way through the line to finished goods. Watch this fall further and further behind the theoretical line.</li>
+    <li class="m-green"><span class="c-green">Avg / Round</span> &mdash; Actual throughput divided by total rounds. In theory this should be 3.5, but you'll see it settle well below that.</li>
+    <li class="m-red"><span class="c-red">Cumulative Lost Throughput</span> (red filled area) &mdash; The gap between theoretical and actual: how much throughput the system has lost overall. Actual + Lost = Theoretical. This red area fills the space between the gold and green lines, directly showing the cumulative cost of statistical fluctuations and dependent events.</li>
+    <li class="m-orange"><span class="c-orange">WIP Inventory</span> (orange line, right axis) &mdash; Total work-in-progress: the sum of all matches sitting in bowls across the line. In a balanced system this stays low. When upstream stations outpace downstream, WIP piles up &mdash; matches sitting in bowls doing nothing.</li>
+    <li class="m-purple"><span class="c-purple">Cumulative Overproduction</span> (purple filled area) &mdash; Each bowl has a max capacity of 6. When a station pushes matches into a bowl that's already full, the excess is wasted overproduction. This represents upstream stations working faster than their downstream neighbor can absorb.</li>
+    <li class="m-red"><span class="c-red">Bottlenecks</span> &mdash; A bottleneck occurs when a bowl hits its max capacity (6) during a round. The stat shows how many bowls maxed out, and whether the bottleneck is <span class="c-orange">stable</span> (same stations each round) or <span class="c-red">moving</span> (shifting between stations &mdash; a sign of chaos in the system).</li>
+    <li class="m-green"><span class="c-green">Per-Round Throughput</span> (bright green bars) &mdash; How many matches the last station delivered each round. Ranges 0&ndash;6, but you'll notice lots of low rolls due to starvation from upstream.</li>
+    <li class="m-green"><span class="c-green">Flow Score</span> &mdash; A composite 0&ndash;100 score combining two factors:<br>
+      &bull; <em>Throughput Efficiency</em> = actual throughput &divide; theoretical throughput<br>
+      &bull; <em>Inventory Efficiency</em> = ideal WIP &divide; (ideal WIP + excess WIP)<br>
+      Score = both multiplied together &times; 100. Green (&gt;80) is great, yellow (50&ndash;80) is struggling, red (&lt;50) means the line is badly degraded. More stations = lower score.</li>
+  </ul>
 </div>
 
 <div class="controls">
@@ -542,12 +586,20 @@ footer a:hover { color: #f0c040; }
 
 <div class="production-line" id="productionLine"></div>
 
-<div class="stats-panel" id="statsPanel">
-  <div class="stat-card"><div class="stat-value blue" id="statRound">0</div><div class="stat-label">Round</div></div>
-  <div class="stat-card"><div class="stat-value green" id="statThroughput">0</div><div class="stat-label">Total Throughput</div></div>
-  <div class="stat-card"><div class="stat-value" id="statAvg">0.00</div><div class="stat-label">Avg / Round</div></div>
-  <div class="stat-card"><div class="stat-value blue" id="statTheoretical">0.0</div><div class="stat-label">Theoretical</div></div>
-  <div class="stat-card"><div class="stat-value red" id="statWIP">0</div><div class="stat-label">WIP Inventory</div></div>
+<div class="stats-rows">
+  <div class="stats-panel">
+    <div class="stat-card"><div class="stat-value blue" id="statRound">0</div><div class="stat-label">Round</div></div>
+    <div class="stat-card"><div class="stat-value green" id="statFlowScore">-</div><div class="stat-label">Flow Score</div></div>
+    <div class="stat-card"><div class="stat-value" id="statBottlenecks">0</div><div class="stat-label">Bottlenecks</div></div>
+  </div>
+  <div class="stats-panel">
+    <div class="stat-card"><div class="stat-value green" id="statThroughput">0.0</div><div class="stat-label">Total Throughput</div></div>
+    <div class="stat-card"><div class="stat-value blue" id="statTheoretical">0.0</div><div class="stat-label">Expected Throughput</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvg">0.0</div><div class="stat-sub">expected 3.5</div><div class="stat-label">Avg / Round</div></div>
+    <div class="stat-card"><div class="stat-value red" id="statWIP">0</div><div class="stat-label">WIP Inventory</div></div>
+    <div class="stat-card"><div class="stat-value red" id="statLost">0</div><div class="stat-label">Lost Throughput</div></div>
+    <div class="stat-card"><div class="stat-value purple" id="statOverprod">0</div><div class="stat-label">Overproduction</div></div>
+  </div>
 </div>
 
 <div class="chart-container">
@@ -585,6 +637,17 @@ function createInitialState(numStations) {
     history: [],        // per-round throughput
     cumulative: [],     // cumulative throughput after each round
     theoretical: [],    // cumulative theoretical (3.5 * round)
+    wipHistory: [],           // total WIP snapshot after each round
+    lostThroughput: 0,        // cumulative lost throughput (theoretical - actual)
+    lostHistory: [],          // cumulative lost per round
+    lostPerRound: [],         // lost this round (3.5 - actual)
+    flowScoreHistory: [],     // flow score (0-100) after each round
+    overproduction: 0,        // cumulative overproduction (buffer overflow)
+    overproductionHistory: [], // cumulative overproduction per round
+    overproductionPerRound: [], // overproduction this round only
+    bottleneckHistory: [],     // number of full buffers per round
+    bottleneckStations: [],    // which stations were bottlenecks last round
+    bottleneckMoving: false,   // did bottleneck locations shift this round
   };
 }
 
@@ -599,7 +662,10 @@ function executeRound() {
     state.diceValues[i] = rollDie();
   }
   // Process stations left to right
+  const BUFFER_CAP = 6;
   let roundThroughput = 0;
+  let roundOverproduction = 0;
+  const roundBottleneckStations = [];
   for (let i = 0; i < state.numStations; i++) {
     const roll = state.diceValues[i];
     let available;
@@ -617,15 +683,52 @@ function executeRound() {
     }
     // Add to next station's input buffer or throughput
     if (i < state.numStations - 1) {
-      state.inputBuffers[i + 1] += available;
+      const newBuffer = state.inputBuffers[i + 1] + available;
+      if (newBuffer >= BUFFER_CAP) {
+        // Buffer hit capacity — this is a bottleneck
+        roundBottleneckStations.push(i + 1);
+        if (newBuffer > BUFFER_CAP) {
+          roundOverproduction += newBuffer - BUFFER_CAP;
+        }
+        state.inputBuffers[i + 1] = BUFFER_CAP;
+      } else {
+        state.inputBuffers[i + 1] = newBuffer;
+      }
     } else {
       roundThroughput = available;
     }
   }
   state.totalThroughput += roundThroughput;
+  state.overproduction += roundOverproduction;
   state.history.push(roundThroughput);
   state.cumulative.push(state.totalThroughput);
   state.theoretical.push(3.5 * state.round);
+  // Lost throughput = gap between theoretical and actual
+  state.lostThroughput = 3.5 * state.round - state.totalThroughput;
+  state.lostHistory.push(state.lostThroughput);
+  state.lostPerRound.push(3.5 - roundThroughput);
+  state.overproductionHistory.push(state.overproduction);
+  state.overproductionPerRound.push(roundOverproduction);
+
+  // Bottleneck detection — uses mid-round data captured during the loop
+  const prevBottlenecks = state.bottleneckStations;
+  const sameSet = prevBottlenecks.length === roundBottleneckStations.length &&
+    prevBottlenecks.every((v, idx) => v === roundBottleneckStations[idx]);
+  state.bottleneckMoving = prevBottlenecks.length > 0 && roundBottleneckStations.length > 0 && !sameSet;
+  state.bottleneckStations = roundBottleneckStations;
+  state.bottleneckHistory.push(roundBottleneckStations.length);
+
+  // WIP snapshot
+  const wip = state.inputBuffers.reduce((a, b) => a + b, 0);
+  state.wipHistory.push(wip);
+
+  // Flow Score
+  const throughputEff = state.totalThroughput / (3.5 * state.round);
+  const theoreticalWIP = state.numStations * 3.5;
+  const excessWIP = Math.max(0, wip - theoreticalWIP);
+  const inventoryEff = theoreticalWIP / (theoreticalWIP + excessWIP);
+  const flowScore = Math.round(throughputEff * inventoryEff * 100);
+  state.flowScoreHistory.push(flowScore);
 }
 
 // ===== DOM Building =====
@@ -747,11 +850,12 @@ function renderBowls() {
       }
     }
 
-    // Inventory bar (relative to max ~20)
+    // Inventory bar (relative to buffer cap of 6)
     const bar = document.getElementById(`inv-bar-${i}`);
     if (bar && i > 0) {
-      const pct = Math.min(count / 20 * 100, 100);
+      const pct = Math.min(count / 6 * 100, 100);
       bar.style.width = pct + '%';
+      bar.classList.toggle('full', count >= 6);
     }
   }
 }
@@ -775,12 +879,45 @@ function renderMoved() {
 
 function renderStats() {
   document.getElementById('statRound').textContent = state.round;
-  document.getElementById('statThroughput').textContent = state.totalThroughput;
-  document.getElementById('statAvg').textContent = state.round > 0 ? (state.totalThroughput / state.round).toFixed(2) : '0.00';
+  document.getElementById('statThroughput').textContent = state.totalThroughput.toFixed(1);
   document.getElementById('statTheoretical').textContent = (3.5 * state.round).toFixed(1);
+  const avgEl = document.getElementById('statAvg');
+  if (state.round > 0) {
+    const avg = state.totalThroughput / state.round;
+    avgEl.textContent = avg.toFixed(1);
+    avgEl.className = 'stat-value ' + (avg >= 3.2 ? 'green' : avg >= 2.5 ? 'yellow' : 'red');
+  } else {
+    avgEl.textContent = '0.0';
+    avgEl.className = 'stat-value';
+  }
   // WIP = sum of all input buffers
   const wip = state.inputBuffers.reduce((a, b) => a + b, 0);
   document.getElementById('statWIP').textContent = wip;
+  // Lost throughput
+  document.getElementById('statLost').textContent = state.lostThroughput;
+  // Overproduction
+  document.getElementById('statOverprod').textContent = state.overproduction;
+  // Bottlenecks
+  const bnEl = document.getElementById('statBottlenecks');
+  const bnCount = state.bottleneckStations.length;
+  if (bnCount === 0) {
+    bnEl.textContent = '0';
+    bnEl.className = 'stat-value green';
+  } else {
+    const label = state.bottleneckMoving ? bnCount + ' moving' : bnCount + ' stable';
+    bnEl.textContent = label;
+    bnEl.className = 'stat-value ' + (state.bottleneckMoving ? 'red' : 'orange');
+  }
+  // Flow Score with color coding
+  const flowEl = document.getElementById('statFlowScore');
+  if (state.round > 0) {
+    const score = state.flowScoreHistory[state.flowScoreHistory.length - 1];
+    flowEl.textContent = score + '%';
+    flowEl.className = 'stat-value ' + (score > 80 ? 'green' : score >= 50 ? 'yellow' : 'red');
+  } else {
+    flowEl.textContent = '-';
+    flowEl.className = 'stat-value green';
+  }
 }
 
 function renderFinished() {
@@ -824,7 +961,7 @@ function initChart() {
           order: 1,
         },
         {
-          label: 'Cumulative Theoretical',
+          label: 'Expected Throughput',
           type: 'line',
           data: [],
           borderColor: '#f0c040',
@@ -836,14 +973,53 @@ function initChart() {
           order: 2,
         },
         {
+          label: 'Cumulative Lost Throughput',
+          type: 'line',
+          data: [],
+          borderColor: '#d04040',
+          backgroundColor: 'rgba(208,64,64,0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#d04040',
+          yAxisID: 'y',
+          order: 3,
+        },
+        {
+          label: 'WIP Inventory',
+          type: 'line',
+          data: [],
+          borderColor: '#e08030',
+          backgroundColor: 'rgba(224,128,48,0.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#e08030',
+          yAxisID: 'y2',
+          order: 4,
+        },
+        {
+          label: 'Cumulative Overproduction',
+          type: 'line',
+          data: [],
+          borderColor: '#a060d0',
+          backgroundColor: 'rgba(160,96,208,0.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#a060d0',
+          yAxisID: 'y',
+          order: 5,
+        },
+        {
           label: 'Per-Round Throughput',
           type: 'bar',
           data: [],
-          backgroundColor: 'rgba(64,144,208,0.5)',
-          borderColor: 'rgba(64,144,208,0.8)',
+          backgroundColor: 'rgba(80,230,120,0.35)',
+          borderColor: 'rgba(80,230,120,0.7)',
           borderWidth: 1,
-          yAxisID: 'y2',
-          order: 3,
+          yAxisID: 'y3',
+          order: 6,
         },
       ],
     },
@@ -862,6 +1038,23 @@ function initChart() {
           bodyColor: '#8aa8c8',
           borderColor: '#1a3050',
           borderWidth: 1,
+          callbacks: {
+            afterBody: function(items) {
+              if (!items.length || !state.flowScoreHistory.length) return '';
+              const idx = items[0].dataIndex;
+              const lines = [];
+              if (idx < state.flowScoreHistory.length) {
+                lines.push('Flow Score: ' + state.flowScoreHistory[idx] + '%');
+              }
+              if (idx < state.overproductionPerRound.length && state.overproductionPerRound[idx] > 0) {
+                lines.push('Overproduced this round: ' + state.overproductionPerRound[idx]);
+              }
+              if (idx < state.bottleneckHistory.length && state.bottleneckHistory[idx] > 0) {
+                lines.push('Bottlenecks: ' + state.bottleneckHistory[idx]);
+              }
+              return lines.join('\n');
+            }
+          },
         },
       },
       scales: {
@@ -879,9 +1072,13 @@ function initChart() {
         },
         y2: {
           position: 'right',
-          ticks: { color: '#4a6888', font: { size: 10 }, stepSize: 1 },
+          ticks: { color: '#e08030', font: { size: 10 } },
           grid: { drawOnChartArea: false },
-          title: { display: true, text: 'Per Round', color: '#6088b0', font: { size: 11 } },
+          title: { display: true, text: 'WIP Inventory', color: '#e08030', font: { size: 11 } },
+          beginAtZero: true,
+        },
+        y3: {
+          display: false,
           beginAtZero: true,
           max: 6,
         },
@@ -895,7 +1092,10 @@ function updateChart() {
   chart.data.labels = state.cumulative.map((_, i) => i + 1);
   chart.data.datasets[0].data = [...state.cumulative];
   chart.data.datasets[1].data = [...state.theoretical];
-  chart.data.datasets[2].data = [...state.history];
+  chart.data.datasets[2].data = [...state.lostHistory];
+  chart.data.datasets[3].data = [...state.wipHistory];
+  chart.data.datasets[4].data = [...state.overproductionHistory];
+  chart.data.datasets[5].data = [...state.history];
   chart.update('none');
 }
 
