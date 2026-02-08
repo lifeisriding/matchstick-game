@@ -116,6 +116,12 @@ header .subtitle {
   background: linear-gradient(135deg, #d04040, #b03030);
 }
 .btn-auto:hover { transform: scale(1.05); }
+.btn-pause {
+  background: linear-gradient(135deg, #4090d0, #3070b0);
+  color: #fff;
+}
+.btn-pause:hover { transform: scale(1.05); }
+.btn-pause:disabled { opacity: 0.3; cursor: default; transform: none; }
 .btn-reset {
   background: #1a3050;
   color: #8aa8c8;
@@ -511,6 +517,25 @@ footer {
 footer a { color: #6088b0; text-decoration: none; }
 footer a:hover { color: #f0c040; }
 
+/* ===== Nav Tabs ===== */
+.nav-tabs { display: flex; justify-content: center; gap: 0; margin: 8px 0; }
+.nav-tab {
+  padding: 6px 20px; text-decoration: none; font-size: 0.85rem;
+  color: #6088b0; border: 1px solid #1a3050; transition: all 0.2s;
+}
+.nav-tab:first-child { border-radius: 8px 0 0 8px; }
+.nav-tab:last-child { border-radius: 0 8px 8px 0; }
+.nav-tab.active { background: #f0c040; color: #1a1a2e; border-color: #f0c040; font-weight: 600; }
+.nav-tab:not(.active):hover { color: #f0c040; border-color: #f0c040; }
+
+/* ===== Bottleneck Highlighting ===== */
+.station.bottleneck-stable .station-name { color: #e08030; text-shadow: 0 0 8px rgba(224,128,48,0.5); }
+.station.bottleneck-moving .station-name { color: #d04040; animation: bottleneckPulse 1s infinite; }
+@keyframes bottleneckPulse {
+  0%, 100% { text-shadow: 0 0 4px rgba(208,64,64,0.3); }
+  50% { text-shadow: 0 0 12px rgba(208,64,64,0.8); }
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   header h1 { font-size: 1.3rem; }
@@ -536,11 +561,18 @@ footer a:hover { color: #f0c040; }
   <div class="subtitle">From "The Goal" by Eli Goldratt &mdash; Chapter 14</div>
 </header>
 
+<div class="nav-tabs">
+  <a href="index.html" class="nav-tab active">Observe</a>
+  <a href="sandbox.html" class="nav-tab">Sandbox</a>
+  <a href="game.html" class="nav-tab">Gam-ba</a>
+</div>
+
 <div class="rules-toggle">
   <button id="rulesBtn" onclick="toggleRules()">Show Rules</button>
 </div>
 <div class="rules-box" id="rulesBox">
-  <strong>How it works:</strong> A line of workers (stations) passes matches from left to right. Each round, every worker rolls a die to determine how many matches they <em>can</em> move. But they can only move as many as are available in their bowl (max capacity: 6). Station 1 draws from unlimited raw materials.<br><br>
+  <strong>How it works:</strong> A line of workers (stations) passes matches from left to right. Each round, every worker rolls a die to determine how many matches they <em>can</em> move. But they can only move as many as are available in their bowl (max capacity: 4). Station 1 draws from unlimited raw materials.<br><br>
+  <strong>Why buffer = 4?</strong> The average die roll is 3.5, so a buffer of 4 rounds up just slightly to give downstream stations a small cushion without over-compensating. A larger buffer would mask the effects of variability &mdash; exactly what we want to observe.<br><br>
   <strong>The insight:</strong> With a single die (average 3.5), you'd expect ~3.5 matches/round of throughput. But because <strong>statistical fluctuations</strong> combine with <strong>dependent events</strong> (each station depends on the previous), actual throughput drops well below the average. Negative fluctuations propagate downstream; positive fluctuations are wasted when there aren't enough matches to move.<br><br>
   <strong>Controls:</strong> Click <strong>Roll</strong> to advance one round, or use <strong>Auto Play</strong> to run continuously. Adjust the number of stations (3-10) to see how line length affects throughput loss.<br><br>
 
@@ -548,11 +580,11 @@ footer a:hover { color: #f0c040; }
   <ul class="metric-list">
     <li class="m-gold"><span class="c-gold">Expected Throughput</span> (gold dashed line) &mdash; The expected throughput based on dice math: a six-sided die averages (1+2+3+4+5+6)&divide;6 = 3.5. If stations were independent (no starvation), output would average 3.5/round, so cumulative = 3.5 &times; rounds. The whole game exists to show why actual output falls below this line.</li>
     <li class="m-green"><span class="c-green">Cumulative Actual</span> (green line) &mdash; What throughput <em>actually</em> is: total matches that made it all the way through the line to finished goods. Watch this fall further and further behind the theoretical line.</li>
-    <li class="m-green"><span class="c-green">Avg / Round</span> &mdash; Actual throughput divided by total rounds. In theory this should be 3.5, but you'll see it settle well below that.</li>
+    <li class="m-green"><span class="c-green">Avg Throughput / Round</span> &mdash; Actual throughput divided by total rounds. In theory this should be 3.5, but you'll see it settle well below that.</li>
     <li class="m-red"><span class="c-red">Cumulative Lost Throughput</span> (red filled area) &mdash; The gap between theoretical and actual: how much throughput the system has lost overall. Actual + Lost = Theoretical. This red area fills the space between the gold and green lines, directly showing the cumulative cost of statistical fluctuations and dependent events.</li>
     <li class="m-orange"><span class="c-orange">WIP Inventory</span> (orange line, right axis) &mdash; Total work-in-progress: the sum of all matches sitting in bowls across the line. In a balanced system this stays low. When upstream stations outpace downstream, WIP piles up &mdash; matches sitting in bowls doing nothing.</li>
-    <li class="m-purple"><span class="c-purple">Cumulative Overproduction</span> (purple filled area) &mdash; Each bowl has a max capacity of 6. When a station pushes matches into a bowl that's already full, the excess is wasted overproduction. This represents upstream stations working faster than their downstream neighbor can absorb.</li>
-    <li class="m-red"><span class="c-red">Bottlenecks</span> &mdash; A bottleneck occurs when a bowl hits its max capacity (6) during a round. The stat shows how many bowls maxed out, and whether the bottleneck is <span class="c-orange">stable</span> (same stations each round) or <span class="c-red">moving</span> (shifting between stations &mdash; a sign of chaos in the system).</li>
+    <li class="m-purple"><span class="c-purple">Cumulative Overproduction</span> (purple filled area) &mdash; Each bowl has a max capacity of 4. When a station pushes matches into a bowl that's already full, the excess is wasted overproduction. This represents upstream stations working faster than their downstream neighbor can absorb.</li>
+    <li class="m-red"><span class="c-red">Bottlenecks</span> &mdash; A bottleneck occurs when a bowl hits its max capacity (4) during a round. The stat shows how many bowls maxed out, and whether the bottleneck is <span class="c-orange">stable</span> (same stations each round) or <span class="c-red">moving</span> (shifting between stations &mdash; a sign of chaos in the system).</li>
     <li class="m-green"><span class="c-green">Per-Round Throughput</span> (bright green bars) &mdash; How many matches the last station delivered each round. Ranges 0&ndash;6, but you'll notice lots of low rolls due to starvation from upstream.</li>
     <li class="m-green"><span class="c-green">Flow Score</span> &mdash; A composite 0&ndash;100 score combining two factors:<br>
       &bull; <em>Throughput Efficiency</em> = actual throughput &divide; theoretical throughput<br>
@@ -564,6 +596,7 @@ footer a:hover { color: #f0c040; }
 <div class="controls">
   <button class="btn-roll" id="btnRoll" onclick="doRound()">Roll Dice</button>
   <button class="btn-auto" id="btnAuto" onclick="toggleAutoPlay()">Auto Play</button>
+  <button class="btn-pause" id="btnPause" onclick="togglePause()" disabled>Pause</button>
   <div class="control-group">
     <label for="speedSlider">Speed:</label>
     <input type="range" id="speedSlider" min="1" max="10" value="5">
@@ -595,7 +628,7 @@ footer a:hover { color: #f0c040; }
   <div class="stats-panel">
     <div class="stat-card"><div class="stat-value green" id="statThroughput">0.0</div><div class="stat-label">Total Throughput</div></div>
     <div class="stat-card"><div class="stat-value blue" id="statTheoretical">0.0</div><div class="stat-label">Expected Throughput</div></div>
-    <div class="stat-card"><div class="stat-value" id="statAvg">0.0</div><div class="stat-sub">expected 3.5</div><div class="stat-label">Avg / Round</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvg">0.0</div><div class="stat-sub">expected 3.5</div><div class="stat-label">Avg Throughput / Round</div></div>
     <div class="stat-card"><div class="stat-value red" id="statWIP">0</div><div class="stat-label">WIP Inventory</div></div>
     <div class="stat-card"><div class="stat-value red" id="statLost">0</div><div class="stat-label">Lost Throughput</div></div>
     <div class="stat-card"><div class="stat-value purple" id="statOverprod">0</div><div class="stat-label">Overproduction</div></div>
@@ -616,12 +649,13 @@ footer a:hover { color: #f0c040; }
 
 <script>
 // ===== Station Names =====
-const NAMES = ['Andy','Ben','Chuck','Dave','Evan','Fran','Grace','Hank','Iris','Jake'];
+const NAMES = ['Herbie','Davey','Ron','Chuck','Evan','Andy','Alex','Ben','Jake','Hank'];
 
 // ===== Game State =====
 let state = null;
 let chart = null;
 let autoPlaying = false;
+let paused = false;
 let animating = false;
 let autoPlayTimer = null;
 
@@ -648,6 +682,11 @@ function createInitialState(numStations) {
     bottleneckHistory: [],     // number of full buffers per round
     bottleneckStations: [],    // which stations were bottlenecks last round
     bottleneckMoving: false,   // did bottleneck locations shift this round
+    // Rolling window bottleneck detection
+    bufferHitHistory: new Array(numStations).fill(null).map(() => []),
+    currentBottleneck: -1,      // station index of THE bottleneck (-1 = none)
+    bottleneckConsecutive: 0,   // how many consecutive rounds same station is THE bottleneck
+    bottleneckRecentList: [],   // last 5 bottleneck station indices for "moving" display
   };
 }
 
@@ -662,7 +701,7 @@ function executeRound() {
     state.diceValues[i] = rollDie();
   }
   // Process stations left to right
-  const BUFFER_CAP = 6;
+  const BUFFER_CAP = 4;
   let roundThroughput = 0;
   let roundOverproduction = 0;
   const roundBottleneckStations = [];
@@ -710,11 +749,42 @@ function executeRound() {
   state.overproductionHistory.push(state.overproduction);
   state.overproductionPerRound.push(roundOverproduction);
 
-  // Bottleneck detection — uses mid-round data captured during the loop
-  const prevBottlenecks = state.bottleneckStations;
-  const sameSet = prevBottlenecks.length === roundBottleneckStations.length &&
-    prevBottlenecks.every((v, idx) => v === roundBottleneckStations[idx]);
-  state.bottleneckMoving = prevBottlenecks.length > 0 && roundBottleneckStations.length > 0 && !sameSet;
+  // Rolling window bottleneck detection
+  const WINDOW = 10;
+  for (let i = 0; i < state.numStations; i++) {
+    const hitCap = roundBottleneckStations.includes(i);
+    state.bufferHitHistory[i].push(hitCap);
+    if (state.bufferHitHistory[i].length > WINDOW) state.bufferHitHistory[i].shift();
+  }
+
+  // Find station whose upstream buffer has highest hit frequency
+  let maxFreq = 0;
+  let maxStation = -1;
+  for (let i = 1; i < state.numStations; i++) {
+    const hist = state.bufferHitHistory[i];
+    if (hist.length === 0) continue;
+    const freq = hist.filter(Boolean).length / hist.length;
+    if (freq > maxFreq) { maxFreq = freq; maxStation = i; }
+  }
+  if (maxFreq === 0) maxStation = -1;
+
+  const prevBottleneck = state.currentBottleneck;
+  if (maxStation === prevBottleneck && maxStation !== -1) {
+    state.bottleneckConsecutive++;
+  } else {
+    state.bottleneckConsecutive = maxStation === -1 ? 0 : 1;
+  }
+  state.currentBottleneck = maxStation;
+
+  // Track last 5 bottleneck stations for "moving" display
+  if (maxStation !== -1) {
+    state.bottleneckRecentList.push(maxStation);
+    if (state.bottleneckRecentList.length > 5) state.bottleneckRecentList.shift();
+  }
+
+  // Determine stable vs moving
+  const uniqueRecent = [...new Set(state.bottleneckRecentList)];
+  state.bottleneckMoving = uniqueRecent.length > 1 && state.bottleneckConsecutive < 5;
   state.bottleneckStations = roundBottleneckStations;
   state.bottleneckHistory.push(roundBottleneckStations.length);
 
@@ -897,16 +967,27 @@ function renderStats() {
   document.getElementById('statLost').textContent = state.lostThroughput;
   // Overproduction
   document.getElementById('statOverprod').textContent = state.overproduction;
-  // Bottlenecks
+  // Bottlenecks — rolling window detection
   const bnEl = document.getElementById('statBottlenecks');
-  const bnCount = state.bottleneckStations.length;
-  if (bnCount === 0) {
-    bnEl.textContent = '0';
+  if (state.currentBottleneck === -1) {
+    bnEl.textContent = 'None yet';
     bnEl.className = 'stat-value green';
+  } else if (state.bottleneckMoving) {
+    const recent = [...new Set(state.bottleneckRecentList)].map(s => NAMES[s]).join(',');
+    bnEl.textContent = 'Moving (' + recent + ')';
+    bnEl.className = 'stat-value red';
   } else {
-    const label = state.bottleneckMoving ? bnCount + ' moving' : bnCount + ' stable';
-    bnEl.textContent = label;
-    bnEl.className = 'stat-value ' + (state.bottleneckMoving ? 'red' : 'orange');
+    bnEl.textContent = NAMES[state.currentBottleneck] + (state.bottleneckConsecutive >= 5 ? '' : '');
+    bnEl.className = 'stat-value orange';
+  }
+  // Apply bottleneck highlighting classes to stations
+  for (let i = 0; i < state.numStations; i++) {
+    const stEl = document.getElementById(`station-${i}`);
+    if (!stEl) continue;
+    stEl.classList.remove('bottleneck-stable', 'bottleneck-moving');
+    if (i === state.currentBottleneck && state.currentBottleneck !== -1) {
+      stEl.classList.add(state.bottleneckMoving ? 'bottleneck-moving' : 'bottleneck-stable');
+    }
   }
   // Flow Score with color coding
   const flowEl = document.getElementById('statFlowScore');
@@ -1231,33 +1312,59 @@ async function doRound() {
 // ===== Auto Play =====
 async function toggleAutoPlay() {
   const btn = document.getElementById('btnAuto');
+  const pauseBtn = document.getElementById('btnPause');
   if (autoPlaying) {
     autoPlaying = false;
+    paused = false;
     btn.textContent = 'Auto Play';
     btn.classList.remove('playing');
+    pauseBtn.textContent = 'Pause';
+    pauseBtn.disabled = true;
     document.getElementById('btnRoll').disabled = false;
     return;
   }
   autoPlaying = true;
+  paused = false;
   btn.textContent = 'Stop';
   btn.classList.add('playing');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.disabled = false;
   document.getElementById('btnRoll').disabled = true;
 
   while (autoPlaying) {
+    if (paused) {
+      await sleep(100);
+      continue;
+    }
     await doRound();
     if (!autoPlaying) break;
-    const pause = Math.max(getSpeed() * 0.3, 50);
-    await sleep(pause);
+    const delay = Math.max(getSpeed() * 0.3, 50);
+    await sleep(delay);
+  }
+}
+
+function togglePause() {
+  if (!autoPlaying) return;
+  paused = !paused;
+  const pauseBtn = document.getElementById('btnPause');
+  pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+  if (paused) {
+    document.getElementById('btnRoll').disabled = false;
+  } else {
+    document.getElementById('btnRoll').disabled = true;
   }
 }
 
 // ===== Reset =====
 function resetGame() {
   autoPlaying = false;
+  paused = false;
   animating = false;
   const btn = document.getElementById('btnAuto');
   btn.textContent = 'Auto Play';
   btn.classList.remove('playing');
+  document.getElementById('btnPause').textContent = 'Pause';
+  document.getElementById('btnPause').disabled = true;
   document.getElementById('btnRoll').disabled = false;
 
   const n = parseInt(document.getElementById('stationCount').value);

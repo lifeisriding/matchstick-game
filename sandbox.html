@@ -1,0 +1,2828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matchstick Game - Sandbox</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0a1628;
+  color: #e0e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== Header ===== */
+header {
+  text-align: center;
+  padding: 20px 20px 10px;
+  background: linear-gradient(180deg, #0f1f3a 0%, #0a1628 100%);
+  border-bottom: 1px solid #1a3050;
+}
+header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f0c040, #e8a020);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+header .subtitle {
+  font-size: 0.85rem;
+  color: #6088b0;
+}
+
+/* ===== Nav Tabs ===== */
+.nav-tabs { display: flex; justify-content: center; gap: 0; margin: 8px 0; }
+.nav-tab {
+  padding: 6px 20px; text-decoration: none; font-size: 0.85rem;
+  color: #6088b0; border: 1px solid #1a3050; transition: all 0.2s;
+}
+.nav-tab:first-child { border-radius: 8px 0 0 8px; }
+.nav-tab:last-child { border-radius: 0 8px 8px 0; }
+.nav-tab.active { background: #f0c040; color: #1a1a2e; border-color: #f0c040; font-weight: 600; }
+.nav-tab:not(.active):hover { color: #f0c040; border-color: #f0c040; }
+
+/* ===== Rules Toggle ===== */
+.rules-toggle {
+  text-align: center;
+  margin: 8px 0;
+}
+.rules-toggle button {
+  background: none;
+  border: 1px solid #1a3050;
+  color: #6088b0;
+  padding: 4px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.rules-toggle button:hover { border-color: #f0c040; color: #f0c040; }
+.rules-box {
+  display: none;
+  max-width: 750px;
+  margin: 10px auto;
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #8aa8c8;
+}
+.rules-box.open { display: block; }
+.rules-box strong { color: #f0c040; }
+.rules-box .c-green { color: #30a060; font-weight: 600; }
+.rules-box .c-gold { color: #f0c040; font-weight: 600; }
+.rules-box .c-red { color: #d04040; font-weight: 600; }
+.rules-box .c-orange { color: #e08030; font-weight: 600; }
+.rules-box .c-purple { color: #a060d0; font-weight: 600; }
+.rules-box .c-blue { color: #4090d0; font-weight: 600; }
+.rules-box .metric-list { margin: 8px 0 4px 0; padding: 0; list-style: none; }
+.rules-box .metric-list li { margin-bottom: 6px; padding-left: 8px; border-left: 3px solid #1a3050; }
+.rules-box .metric-list li.m-green { border-left-color: #30a060; }
+.rules-box .metric-list li.m-gold { border-left-color: #f0c040; }
+.rules-box .metric-list li.m-red { border-left-color: #d04040; }
+.rules-box .metric-list li.m-orange { border-left-color: #e08030; }
+.rules-box .metric-list li.m-purple { border-left-color: #a060d0; }
+.rules-box .metric-list li.m-blue { border-left-color: #4090d0; }
+.rules-box .strategy-tips { margin: 8px 0; padding: 0; list-style: none; }
+.rules-box .strategy-tips li {
+  margin-bottom: 5px; padding: 4px 8px; border-left: 3px solid #30a060;
+  background: rgba(48,160,96,0.05); border-radius: 0 4px 4px 0;
+}
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  flex-wrap: wrap;
+}
+.controls button {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-roll {
+  background: linear-gradient(135deg, #f0c040, #e8a020);
+  color: #1a1a2e;
+}
+.btn-roll:hover { transform: scale(1.05); box-shadow: 0 0 16px rgba(240,192,64,0.4); }
+.btn-roll:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+.btn-auto {
+  background: linear-gradient(135deg, #30a060, #208040);
+  color: #fff;
+}
+.btn-auto.playing {
+  background: linear-gradient(135deg, #d04040, #b03030);
+}
+.btn-auto:hover { transform: scale(1.05); }
+.btn-pause {
+  background: linear-gradient(135deg, #4090d0, #3070b0);
+  color: #fff;
+}
+.btn-pause:hover { transform: scale(1.05); }
+.btn-pause:disabled { opacity: 0.3; cursor: default; transform: none; }
+.btn-reset {
+  background: linear-gradient(135deg, #4090d0, #2070c0);
+  color: #fff;
+  border: none;
+}
+.btn-reset:hover { transform: scale(1.05); box-shadow: 0 0 12px rgba(64,144,208,0.4); }
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #6088b0;
+}
+.control-group select, .control-group input[type="range"] {
+  background: #1a3050;
+  color: #e0e8f0;
+  border: 1px solid #2a4060;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.82rem;
+}
+.control-group input[type="range"] {
+  width: 80px;
+  accent-color: #f0c040;
+}
+.mode-group {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.mode-group .mode-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mode-group .mode-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: #6088b0;
+}
+.mode-group .mode-sub select {
+  background: #1a3050;
+  color: #e0e8f0;
+  border: 1px solid #2a4060;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+}
+.stat-ctrl {
+  font-size: 0.75rem;
+  color: #ffffff;
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+/* ===== Interventions Bar ===== */
+.interventions-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 20px 10px;
+}
+.interventions-label {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #f0c040;
+  margin-bottom: 8px;
+}
+.interventions-content {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(240,192,64,0.04);
+  border: 1px solid rgba(240,192,64,0.15);
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+.interventions-content .control-group {
+  font-size: 0.82rem;
+  color: #6088b0;
+}
+.show-control-inline {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 0.78rem;
+}
+.show-control-inline input[type="checkbox"] {
+  accent-color: #4090d0;
+}
+.show-control-inline label {
+  cursor: pointer;
+  color: #8aa8c8;
+}
+
+/* ===== 3-Way Dice Mode Toggle ===== */
+.tri-toggle {
+  display: flex;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #1a3050;
+  background: #0a1525;
+}
+.tri-toggle input[type="radio"] { display: none; }
+.tri-toggle label {
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  color: #6088b0;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  border-right: 1px solid #1a3050;
+  white-space: nowrap;
+}
+.tri-toggle label:last-of-type { border-right: none; }
+.tri-toggle label:hover { color: #e0e8f0; background: #1a3050; }
+.tri-toggle input[type="radio"]:checked + label {
+  background: #f0c040;
+  color: #0a1525;
+  font-weight: 700;
+}
+.tri-toggle input[type="radio"]:disabled + label {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.dice-mode-desc {
+  font-size: 0.62rem;
+  color: #6088b0;
+  margin-top: 3px;
+  min-height: 1.1em;
+}
+
+/* ===== Budget Bar ===== */
+.budget-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #6088b0;
+}
+.budget-bar-track {
+  width: 80px;
+  height: 10px;
+  background: #1a3050;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #2a4060;
+}
+.budget-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #30a060, #f0c040);
+  border-radius: 5px;
+  transition: width 0.3s, background 0.3s;
+}
+.budget-bar-fill.over {
+  background: linear-gradient(90deg, #d04040, #e06040);
+}
+.budget-text {
+  font-weight: 600;
+  color: #e0e8f0;
+  min-width: 36px;
+}
+.budget-text.over { color: #d04040; }
+
+/* ===== Production Line ===== */
+.production-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Arrow between stations */
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: #2a4060;
+  padding-top: 58px;
+  min-width: 18px;
+  flex-shrink: 0;
+}
+
+/* ===== Matchbox (raw materials) ===== */
+.matchbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.matchbox-label {
+  font-size: 0.7rem;
+  color: #6088b0;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.matchbox-body {
+  width: 66px;
+  height: 90px;
+  position: relative;
+}
+/* Inner tray — peeking out the top */
+.matchbox-tray {
+  position: absolute;
+  bottom: 8px;
+  left: 5px;
+  right: 5px;
+  height: 82px;
+  background: linear-gradient(180deg, #d4a054, #c08840, #b07830);
+  border-radius: 3px 3px 2px 2px;
+  border: 1px solid #8a6020;
+  z-index: 0;
+}
+/* Match heads row — lined up at the top of the tray */
+.matchbox-heads {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.match-head {
+  width: 6px;
+  height: 8px;
+  background: radial-gradient(ellipse at 50% 30%, #ff6040, #d03020, #901808);
+  border-radius: 50% 50% 30% 30%;
+  box-shadow: 0 0 4px rgba(255,80,40,0.5);
+}
+/* Match sticks below the heads */
+.matchbox-sticks {
+  position: absolute;
+  top: 9px;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.match-stick {
+  width: 2px;
+  height: 18px;
+  background: linear-gradient(180deg, #e8d8a0, #c8b070);
+  border-radius: 0 0 1px 1px;
+}
+/* Outer sleeve — slides over the tray */
+.matchbox-sleeve {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: linear-gradient(145deg, #8b4513, #a0522d, #8b4513);
+  border-radius: 4px;
+  border: 2px solid #654321;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 1;
+}
+/* Sleeve label stripe */
+.matchbox-sleeve::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 6px; right: 6px;
+  height: 20px;
+  background: rgba(240,192,64,0.12);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 2px;
+}
+/* Striker strip on bottom of sleeve */
+.matchbox-sleeve::after {
+  content: '';
+  position: absolute;
+  bottom: 6px; left: 8px; right: 8px;
+  height: 8px;
+  background: linear-gradient(90deg, #2a2a2a, #3a3a3a, #2a2a2a);
+  border-radius: 2px;
+  border: 1px solid #1a1a1a;
+}
+
+/* ===== Station ===== */
+.station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  position: relative;
+}
+.station-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #8aa8c8;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Bottleneck Highlighting ===== */
+.bottle-glow {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  width: 75px;
+  height: 160px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+.station.bottleneck-stable .bottle-glow {
+  display: block;
+  color: #e08030;
+  filter: drop-shadow(0 0 10px rgba(224,128,48,0.8)) drop-shadow(0 0 20px rgba(224,128,48,0.4));
+}
+.station.bottleneck-multi .bottle-glow {
+  display: block;
+  color: #d04040;
+  filter: drop-shadow(0 0 12px rgba(208,64,64,0.9)) drop-shadow(0 0 24px rgba(208,64,64,0.5));
+  animation: bottleneckPulseRed 1.6s infinite;
+}
+.station.bottleneck-critical .bottle-glow {
+  display: block;
+  color: #d04040;
+  animation: bottleneckSiren 1s infinite;
+}
+.station.bottleneck-stable .station-name { color: #e08030; text-shadow: 0 0 8px rgba(224,128,48,0.5); }
+.station.bottleneck-multi .station-name { color: #d04040; text-shadow: 0 0 8px rgba(208,64,64,0.5); }
+.station.bottleneck-critical .station-name { color: #ff4040; animation: sirenText 1s infinite; }
+@keyframes bottleneckPulseRed {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.55; }
+}
+@keyframes bottleneckSiren {
+  0%, 100% {
+    color: #d04040;
+    filter: drop-shadow(0 0 16px rgba(208,64,64,1)) drop-shadow(0 0 32px rgba(208,64,64,0.5));
+    opacity: 0.6;
+  }
+  50% {
+    color: #4080ff;
+    filter: drop-shadow(0 0 16px rgba(64,128,255,1)) drop-shadow(0 0 32px rgba(64,128,255,0.5));
+    opacity: 0.7;
+  }
+}
+@keyframes sirenText {
+  0%, 100% { color: #ff4040; text-shadow: 0 0 8px rgba(255,64,64,0.6); }
+  50% { color: #4080ff; text-shadow: 0 0 8px rgba(64,128,255,0.6); }
+}
+
+/* ===== Die ===== */
+.die-container {
+  margin-bottom: 4px;
+  perspective: 300px;
+  position: relative;
+  z-index: 1;
+}
+.die {
+  width: 48px;
+  height: 48px;
+  background: #f5f0e8;
+  border-radius: 10px;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  padding: 6px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.8);
+  transition: transform 0.1s, box-shadow 0.3s;
+  position: relative;
+}
+.die.rolling {
+  animation: diceRoll 0.08s infinite alternate;
+}
+@keyframes diceRoll {
+  0% { transform: rotateX(-8deg) rotateY(8deg) scale(1.05); }
+  100% { transform: rotateX(8deg) rotateY(-8deg) scale(1.05); }
+}
+.die.starved {
+  box-shadow: 0 0 14px rgba(220,60,60,0.7), 0 3px 8px rgba(0,0,0,0.4);
+}
+.die .dot {
+  width: 9px;
+  height: 9px;
+  background: #2a2a3a;
+  border-radius: 50%;
+  align-self: center;
+  justify-self: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.die .dot.visible { opacity: 1; }
+
+/* ===== Station Controls (per-station intervention widgets) ===== */
+.station-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+}
+.station-controls select {
+  background: #1a3050;
+  color: #e0e8f0;
+  border: 1px solid #2a4060;
+  border-radius: 4px;
+  padding: 1px 2px;
+  font-size: 0.65rem;
+  width: 34px;
+  cursor: pointer;
+}
+.station-controls select:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.dice-control-wrap, .reducer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.btn-ot {
+  background: #1a3050;
+  color: #6088b0;
+  border: 1px solid #2a4060;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 600;
+}
+.btn-ot.active {
+  background: #e08030;
+  color: #1a1a2e;
+  border-color: #e08030;
+}
+.btn-ot:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ===== Bowl (SVG inline) ===== */
+.bowl-area {
+  position: relative;
+  width: 80px;
+  height: 55px;
+  margin-bottom: 4px;
+}
+.bowl-svg {
+  width: 80px;
+  height: 55px;
+}
+.bowl-matches {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 60px;
+}
+.bowl-match {
+  width: 3px;
+  height: 14px;
+  position: relative;
+}
+.bowl-match .stick {
+  width: 3px;
+  height: 10px;
+  background: linear-gradient(90deg, #c8a050, #dab060, #c8a050);
+  position: absolute;
+  bottom: 0;
+  border-radius: 0 0 1px 1px;
+}
+.bowl-match .head {
+  width: 5px;
+  height: 5px;
+  background: radial-gradient(circle at 40% 35%, #ff6040, #cc3020);
+  border-radius: 50% 50% 30% 30%;
+  position: absolute;
+  top: 0;
+  left: -1px;
+}
+
+/* ===== Station Bottom Controls (buffer, defect, inspect) ===== */
+.station-bottom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+  font-size: 0.65rem;
+}
+.station-bottom-controls .row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.station-bottom-controls select {
+  background: #1a3050;
+  color: #e0e8f0;
+  border: 1px solid #2a4060;
+  border-radius: 4px;
+  padding: 1px 2px;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+.station-bottom-controls select:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.station-bottom-controls label {
+  color: #6088b0;
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.station-bottom-controls input[type="checkbox"] {
+  accent-color: #f0c040;
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+}
+.station-bottom-controls input[type="checkbox"]:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.lbl-tiny { color: #506880; font-size: 0.6rem; }
+
+.bowl-count {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f0c040;
+  min-height: 1.2em;
+}
+.moved-info {
+  font-size: 0.7rem;
+  color: #50a060;
+  min-height: 1em;
+  margin-top: 2px;
+}
+.moved-info.starved-text { color: #d04040; }
+.moved-info.scrap-text { color: #a060d0; }
+
+/* Inventory bar under bowl */
+.inventory-bar-track {
+  width: 60px;
+  height: 4px;
+  background: #1a3050;
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.inventory-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #30a060, #f0c040);
+  border-radius: 2px;
+  transition: width 0.4s, background 0.3s;
+  min-width: 0;
+}
+.inventory-bar-fill.full {
+  background: linear-gradient(90deg, #d04040, #e06040);
+}
+
+/* ===== Finished Goods Tray ===== */
+.finished-tray {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+.finished-label {
+  font-size: 0.7rem;
+  color: #6088b0;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.finished-body {
+  width: 80px;
+  min-height: 90px;
+  background: #0f1f3a;
+  border: 2px solid #30a060;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-end;
+  justify-content: center;
+  gap: 1px;
+  padding: 6px;
+  box-shadow: 0 0 12px rgba(48,160,96,0.2);
+  transition: box-shadow 0.3s;
+}
+.finished-body.glow {
+  box-shadow: 0 0 20px rgba(48,160,96,0.5);
+}
+.finished-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #30a060;
+  margin-top: 6px;
+}
+
+/* Small match icon in finished tray */
+.tiny-match {
+  width: 2px;
+  height: 10px;
+  position: relative;
+}
+.tiny-match .stick {
+  width: 2px;
+  height: 7px;
+  background: linear-gradient(90deg, #c8a050, #dab060);
+  position: absolute;
+  bottom: 0;
+}
+.tiny-match .head {
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle at 40% 35%, #ff6040, #cc3020);
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: -1px;
+}
+
+/* ===== Flying Match Animation Overlay ===== */
+.animation-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+.flying-match {
+  position: absolute;
+  width: 4px;
+  height: 18px;
+  transition: none;
+}
+.flying-match .stick {
+  width: 4px;
+  height: 13px;
+  background: linear-gradient(90deg, #c8a050, #dab060, #c8a050);
+  position: absolute;
+  bottom: 0;
+  border-radius: 0 0 1px 1px;
+}
+.flying-match .head {
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle at 40% 35%, #ff6040, #cc3020);
+  border-radius: 50% 50% 30% 30%;
+  position: absolute;
+  top: 0;
+  left: -1px;
+  box-shadow: 0 0 6px rgba(255,96,64,0.6);
+}
+
+/* ===== Stats Panel ===== */
+.stats-rows {
+  padding: 12px 20px 4px;
+}
+.stats-panel {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  padding: 4px 0;
+  flex-wrap: wrap;
+}
+.stat-card {
+  text-align: center;
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 10px;
+  padding: 10px 18px;
+  min-width: 110px;
+}
+.stat-sub {
+  font-size: 0.75rem;
+  color: #506880;
+  margin-top: 1px;
+}
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f0c040;
+}
+.stat-value.green { color: #30a060; }
+.stat-value.red { color: #d04040; }
+.stat-value.blue { color: #4090d0; }
+.stat-value.yellow { color: #f0c040; }
+.stat-value.orange { color: #e08030; }
+.stat-value.purple { color: #a060d0; }
+.stat-value.pink { color: #e840a0; }
+.stat-value.teal { color: #20d0d0; }
+.stat-value.sky { color: #60c0f0; }
+/* Pulsating stat card glows — red=fast, yellow=medium, green=slow */
+@keyframes pulseGreen {
+  0%, 100% { border-color: #30a060; box-shadow: 0 0 8px rgba(48,160,96,0.3); }
+  50% { border-color: #50e090; box-shadow: 0 0 20px rgba(80,224,144,0.6), 0 0 40px rgba(48,160,96,0.25); }
+}
+@keyframes pulseYellow {
+  0%, 100% { border-color: #f0c040; box-shadow: 0 0 8px rgba(240,192,64,0.3); }
+  50% { border-color: #ffe060; box-shadow: 0 0 22px rgba(255,224,96,0.7), 0 0 44px rgba(240,192,64,0.3); }
+}
+@keyframes pulseRed {
+  0%, 100% { border-color: #d04040; box-shadow: 0 0 10px rgba(208,64,64,0.4); }
+  50% { border-color: #ff5050; box-shadow: 0 0 24px rgba(255,80,80,0.8), 0 0 48px rgba(208,64,64,0.35); }
+}
+.stat-card.flow-green, .stat-card.ct-green, .stat-card.perf-green, .stat-card.bn-green { animation: pulseGreen 8s ease-in-out infinite; }
+.stat-card.flow-yellow, .stat-card.ct-yellow, .stat-card.perf-yellow, .stat-card.bn-yellow { animation: pulseYellow 4s ease-in-out infinite; }
+.stat-card.flow-red, .stat-card.ct-red, .stat-card.perf-red, .stat-card.bn-red { animation: pulseRed 1.6s ease-in-out infinite; }
+@keyframes pulseSiren {
+  0%, 100% { border-color: #d04040; box-shadow: 0 0 14px rgba(208,64,64,0.6); }
+  50% { border-color: #4080ff; box-shadow: 0 0 14px rgba(64,128,255,0.6); }
+}
+.stat-card.bn-critical { animation: pulseSiren 1s ease-in-out infinite; }
+.stat-sub .trend-arrow { font-weight: 700; }
+.trend-up-bad { color: #d04040; }
+.trend-down-good { color: #30a060; }
+.trend-up-good { color: #30a060; }
+.trend-down-bad { color: #d04040; }
+.stat-label {
+  font-size: 0.7rem;
+  color: #6088b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+#bottleneckCard {
+  min-width: 160px;
+}
+#bottleneckCard .stat-value {
+  font-size: 1.05rem;
+  min-height: 2.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Comparison Dashboard ===== */
+.comparison-section {
+  max-width: 700px;
+  margin: 10px auto;
+  padding: 0 20px;
+}
+.comparison-toggle {
+  text-align: center;
+  margin-bottom: 6px;
+}
+.comparison-toggle button {
+  background: none;
+  border: 1px solid #1a3050;
+  color: #6088b0;
+  padding: 4px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.comparison-toggle button:hover { border-color: #f0c040; color: #f0c040; }
+.comparison-table-wrap {
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.comparison-table-wrap.collapsed { display: none; }
+.comparison-header {
+  padding: 10px 16px 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #e08030;
+  border-bottom: 1px solid #1a3050;
+}
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.comparison-table th {
+  padding: 8px 12px;
+  text-align: right;
+  color: #6088b0;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.comparison-table th:first-child { text-align: left; }
+.comparison-table td {
+  padding: 6px 12px;
+  text-align: right;
+  border-top: 1px solid rgba(26,48,80,0.5);
+}
+.comparison-table td:first-child {
+  text-align: left;
+  color: #8aa8c8;
+  font-weight: 600;
+}
+.comparison-table .improvement { color: #30a060; }
+.comparison-table .regression { color: #d04040; }
+.comparison-table .neutral { color: #6088b0; }
+
+/* ===== Chart ===== */
+.chart-container {
+  margin: 10px auto 20px;
+  padding: 0 20px;
+}
+.chart-wrapper {
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* ===== Footer ===== */
+footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 0.75rem;
+  color: #3a5878;
+  border-top: 1px solid #1a3050;
+}
+footer a { color: #6088b0; text-decoration: none; }
+footer a:hover { color: #f0c040; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  header h1 { font-size: 1.3rem; }
+  .production-line { gap: 4px; padding: 12px 8px; }
+  .station { min-width: 70px; }
+  .die { width: 36px; height: 36px; padding: 4px; }
+  .die .dot { width: 7px; height: 7px; }
+  .bowl-area { width: 60px; height: 42px; }
+  .bowl-svg { width: 60px; height: 42px; }
+  .arrow { font-size: 1rem; padding-top: 40px; }
+  .stats-panel { gap: 10px; }
+  .stat-card { min-width: 80px; padding: 8px 10px; }
+  .stat-value { font-size: 1.1rem; }
+  .controls { gap: 8px; }
+  .controls button { padding: 6px 14px; font-size: 0.8rem; }
+  .interventions-content { gap: 8px; padding: 8px 10px; }
+  .station-controls select, .station-bottom-controls select { font-size: 0.6rem; width: 30px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Matchstick Game</h1>
+  <div class="subtitle">Sandbox - Experiment Freely - Intervention Playground</div>
+</header>
+
+<div class="nav-tabs">
+  <a href="index.html" class="nav-tab">Observe</a>
+  <a href="sandbox.html" class="nav-tab active">Sandbox</a>
+  <a href="game.html" class="nav-tab">Gam-ba</a>
+</div>
+
+<div class="rules-toggle">
+  <button id="rulesBtn" onclick="toggleRules()">Show Rules &amp; Strategy</button>
+</div>
+<div class="rules-box" id="rulesBox">
+  <strong>Sandbox Mode:</strong> You control one production line with the ability to make changes at each station. A hidden "control" line runs in the background with identical dice rolls but no changes. The comparison dashboard shows exactly how much your interventions helped.<br><br>
+
+  <strong>Interventions:</strong>
+  <ul class="metric-list">
+    <li class="m-green"><span class="c-green">Release Rate "The Rope"</span> (global) &mdash; Limits how many raw materials enter the system each round (1&ndash;16). Station 1 gets min(roll, releaseRate). Default is 6. <span class="c-gold">Budget cost: Free!</span></li>
+    <li class="m-gold"><span class="c-gold">Overtime</span> (per station toggle, requires Budget Mode) &mdash; Rolls a second die and takes the higher value. Massively increases that station's output. <span class="c-gold">Budget cost: 3 pts per station.</span></li>
+    <li class="m-purple"><span class="c-purple">Inspection</span> (per station checkbox, requires Defects Mode) &mdash; Enable inspection on a station to catch upstream defects before they consume capacity. Only available on stations 2+, since station 1 has no upstream. <span class="c-gold">Budget cost: 1 pt per station.</span></li>
+  </ul>
+
+  <strong>Modes:</strong>
+  <ul class="metric-list">
+    <li class="m-gold"><span class="c-gold">Budget Mode</span> &mdash; Limits how many intervention points you can spend. Difficulty controls the cap:
+      <strong>Easy</strong> (30 pts), <strong>Medium</strong> (20 pts), <strong>Hard</strong> (14 pts), <strong>Extra Hard</strong> (8 pts).
+      When budget mode is off, interventions are unlimited and Dice Mode is locked to Normal. When on, controls that exceed the budget are disabled.
+      Budget Mode also unlocks <strong>Overtime</strong> buttons on each station and <strong>Dice Mode</strong> (see below).
+      <br><br>
+      <span class="c-blue" style="font-weight:600">Dice Mode</span> (3-way toggle, nested inside Budget Mode) &mdash; Controls how much randomness each station's die has. Choose one:
+      <ul style="margin:4px 0 2px 16px;list-style:disc">
+        <li><strong>Normal</strong> &mdash; Standard 1&ndash;6 dice, no cost. Same as the Observe page.</li>
+        <li><strong>Reducer</strong> &mdash; Each station gets a preset dropdown: <strong>1&ndash;6</strong> (no cost), <strong>2&ndash;5</strong> (2 pts), or <strong>3&ndash;4</strong> (4 pts). Quick way to tighten variance.</li>
+        <li><strong>Dice Control</strong> &mdash; Full min/max dropdowns per station (e.g. set Station 3 to roll 3&ndash;5). Most flexible but most expensive. <strong>1 pt per step narrowed</strong> from the default 1&ndash;6 range.</li>
+      </ul>
+      <em>Example: setting all 5 stations to Reducer 2&ndash;5 = 10 pts. Setting all to 3&ndash;4 = 20 pts. Add Overtime on the bottleneck (+3) and that's 23 pts &mdash; fits on Easy but not Medium.</em>
+    </li>
+    <li class="m-purple"><span class="c-purple">Defects Mode</span> &mdash; Simulates quality problems across the line. Can be toggled on or off at any round. Each station gets a random defect rate each round within your chosen difficulty:
+      <strong>Easy</strong> (5&ndash;10%), <strong>Medium</strong> (10&ndash;20%), <strong>Hard</strong> (20&ndash;30%), <strong>Extra Hard</strong> (30&ndash;50%).
+      Defective items become scrap. Enable <em>Inspect</em> at a station to catch upstream defects before they waste capacity. <span class="c-gold">Inspection costs 1 budget point per station.</span></li>
+    <li class="m-blue"><span class="c-blue">Buffer Control</span> &mdash; Toggle on to reveal per-bowl buffer capacity dropdowns (2&ndash;16). When off, all buffers use the default (4). <span class="c-gold">Budget cost: Free!</span> Larger buffers protect against starvation but increase cycle time &mdash; matchsticks spend more time sitting in bowls.</li>
+  </ul>
+
+  <strong>Control Line &amp; Comparison:</strong> A hidden "control" line runs with the same dice rolls but zero interventions.
+  The <span class="c-blue">ctrl:</span> values under each stat card show what would have happened without your changes.
+  Toggle <strong>Show Control</strong> on/off in the toolbar. The Comparison Dashboard shows a full side-by-side breakdown.<br><br>
+
+  <strong>Metrics Explained:</strong>
+  <ul class="metric-list">
+    <li class="m-green"><span class="c-green">Flow Score</span> &mdash; Combines throughput efficiency (your actual output &divide; expected output) with inventory efficiency (how lean your WIP is). A score of 100% means you're matching theoretical throughput with minimal inventory buildup.</li>
+    <li class="m-blue"><span class="c-blue">Cycle Time</span> &mdash; How long (in minutes) a matchstick takes to travel from the first bowl to finished goods. Calculated using <strong>Little&rsquo;s Law</strong>: <code>Cycle Time = (Avg WIP &divide; Throughput Rate) &times; minutes per round</code>. Each bowl = 1 minute, so with 5 bowls each round is 5 minutes. Lower is better &mdash; high cycle time means matchsticks are sitting in buffers too long. Thresholds: <span style="color:#30a060">green</span> &le; 1.5&times; theoretical min, <span style="color:#f0c040">yellow</span> &le; 2&times;, <span style="color:#d04040">red</span> &gt; 2&times; (theoretical min = number of bowls).</li>
+    <li class="m-purple"><span class="c-purple">Performance Score</span> &mdash; An overall rating combining Flow Score and Cycle Time Score using a <strong>geometric mean</strong>: <code>Performance = &radic;(Flow Score &times; CT Score)</code>. The CT Score compares your cycle time to the control line: <code>CT Score = control CT &divide; your CT &times; 100</code> (capped at 100%). This means you need <em>both</em> good throughput and fast cycle times to score well &mdash; you can't game it by optimizing just one.</li>
+  </ul>
+
+  <strong>Strategy Tips:</strong>
+  <ul class="strategy-tips">
+    <li>Run a few rounds first to see where the bottleneck forms</li>
+    <li>The Rope is free &mdash; try reducing release rate to 3 or 4 first</li>
+    <li>Invest your limited budget AT the constraint, not everywhere</li>
+    <li>Overtime everywhere just builds WIP &mdash; use it only at the bottleneck</li>
+    <li>Tightening dice range to 3&ndash;4 at the bottleneck is very effective</li>
+    <li>Turn on Defects Mode, then add Inspect BEFORE the bottleneck to catch bad items</li>
+  </ul>
+
+  <strong>Bottleneck Severity Levels:</strong>
+  <p style="font-size:0.8rem;color:#8aa8c8;margin:6px 0 4px">A bottleneck occurs when a bowl's buffer hits its capacity, meaning the upstream station produced more than the downstream station could process. The system tracks which bowls hit cap each round and uses a rolling 10-round window to detect patterns.</p>
+  <ul class="metric-list">
+    <li class="m-green"><span class="c-green">None</span> &mdash; No bowls hit their buffer cap this round. The line is flowing freely. Stat card pulses <strong>slow green</strong>.</li>
+    <li class="m-gold"><span class="c-gold">Single (Stable)</span> &mdash; Exactly one bowl hit cap and the dominant bottleneck hasn't been shifting around. This is a predictable, fixed constraint &mdash; the easiest to address. Station shows an <strong>orange bottle glow</strong>, stat card pulses <strong>medium yellow</strong>.</li>
+    <li class="m-orange" style="border-left-color:#d04040"><span style="color:#d04040">Multiple / Moving</span> &mdash; Either 2+ bowls hit cap simultaneously, or the dominant bottleneck has been jumping between stations recently. The constraint is harder to pin down. Stations show <strong>red pulsing bottles</strong>, stat card pulses <strong>fast red</strong>.</li>
+    <li class="m-orange" style="border-left-color:#a040ff"><span style="color:#ff4040">C</span><span style="color:#4080ff">R</span><span style="color:#ff4040">I</span><span style="color:#4080ff">T</span><span style="color:#ff4040">I</span><span style="color:#4080ff">C</span><span style="color:#ff4040">A</span><span style="color:#4080ff">L</span> &mdash; Multiple bowls are hitting cap AND the dominant bottleneck is shifting around. The whole line is congested and unpredictable. Stations and the stat card flash <strong>red &amp; blue like a siren</strong>. This is the worst state &mdash; WIP is piling up everywhere and throughput is suffering badly.</li>
+  </ul>
+  <p style="font-size:0.78rem;color:#6088b0;margin:4px 0 0">The rolling window tracks each station's buffer-hit frequency over the last 10 rounds. The station with the highest frequency is the "dominant" bottleneck. If that dominant station changes identity within a 5-round window, the bottleneck is classified as "moving."</p>
+</div>
+
+<div class="controls">
+  <button class="btn-roll" id="btnRoll" onclick="doRound()">Roll Dice</button>
+  <button class="btn-auto" id="btnAuto" onclick="toggleAutoPlay()">Auto Play</button>
+  <button class="btn-pause" id="btnPause" onclick="togglePause()" disabled>Pause</button>
+  <div class="control-group">
+    <label for="speedSlider">Speed:</label>
+    <input type="range" id="speedSlider" min="1" max="10" value="5">
+  </div>
+  <div class="control-group">
+    <label for="stationCount">Stations:</label>
+    <select id="stationCount" onchange="changeStationCount()">
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5" selected>5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+    </select>
+  </div>
+  <div class="control-group show-control-inline">
+    <div class="mode-header">
+      <input type="checkbox" id="showControlToggle" checked onchange="onShowControlToggle()">
+      <label for="showControlToggle">Show Control</label>
+    </div>
+    <div class="mode-sub" style="font-size:0.65rem;color:#6088b0">vs. no interventions</div>
+  </div>
+  <button class="btn-reset" onclick="resetGame()">Reset</button>
+</div>
+<div class="interventions-bar">
+  <div class="interventions-label">Interventions</div>
+  <div class="interventions-content">
+    <div class="control-group">
+      <label for="releaseRate">Release Rate:</label>
+      <select id="releaseRate" onchange="onReleaseRateChange()">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6" selected>6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+        <option value="12">12</option>
+        <option value="14">14</option>
+        <option value="16">16</option>
+      </select>
+    </div>
+    <div class="control-group mode-group">
+      <div class="mode-header">
+        <input type="checkbox" id="budgetToggle" onchange="onBudgetToggle()">
+        <label for="budgetToggle">Budget Mode</label>
+      </div>
+      <div class="mode-sub" id="budgetSub" style="display:none">
+        <select id="budgetDifficulty" onchange="onBudgetDifficultyChange()">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="extreme">Extra Hard</option>
+        </select>
+        <div class="budget-display">
+          <div class="budget-bar-track"><div class="budget-bar-fill" id="budgetBarFill" style="width:0%"></div></div>
+          <span class="budget-text" id="budgetText">0/30</span>
+        </div>
+      </div>
+      <div style="margin-top:4px">
+        <div class="mode-header" style="margin-bottom:2px">
+          <span style="font-size:0.8rem;color:#8aa8c8;font-weight:600">Dice Mode</span>
+        </div>
+        <div class="tri-toggle" id="diceToggleGroup">
+          <input type="radio" name="diceMode" id="dmNormal" value="normal" checked disabled onchange="onDiceModeChange()"><label for="dmNormal">Normal</label>
+          <input type="radio" name="diceMode" id="dmReducer" value="reducer" disabled onchange="onDiceModeChange()"><label for="dmReducer">Reducer</label>
+          <input type="radio" name="diceMode" id="dmControl" value="control" disabled onchange="onDiceModeChange()"><label for="dmControl">Dice Control</label>
+        </div>
+        <div class="dice-mode-desc" id="diceModeDesc">standard 1-6 dice, no interventions</div>
+      </div>
+    </div>
+    <div class="control-group mode-group">
+      <div class="mode-header">
+        <input type="checkbox" id="bufferControlToggle" onchange="onBufferControlToggle()">
+        <label for="bufferControlToggle">Buffer Control</label>
+      </div>
+      <div class="mode-sub" style="font-size:0.65rem;color:#6088b0">set capacity per bowl</div>
+      <div style="font-size:0.58rem;color:#d04040;margin-top:1px">improves flow but increases cycle time</div>
+    </div>
+    <div class="control-group mode-group">
+      <div class="mode-header">
+        <input type="checkbox" id="defectsToggle" onchange="onDefectsToggle()">
+        <label for="defectsToggle">Defects Mode</label>
+      </div>
+      <div class="mode-sub" id="defectsSub" style="display:none">
+        <select id="defectDifficulty" onchange="onDifficultyChange()">
+          <option value="easy">Easy (5-10%)</option>
+          <option value="medium">Medium (10-20%)</option>
+          <option value="hard">Hard (20-30%)</option>
+          <option value="extreme">Extra Hard (30-50%)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="production-line" id="productionLine"></div>
+
+<div class="stats-rows">
+  <div class="stats-panel">
+    <div class="stat-card"><div class="stat-value blue" id="statRound">0</div><div class="stat-label">Round</div></div>
+    <div class="stat-card" id="flowScoreCard"><div class="stat-value pink" id="statFlowScore">-</div><div class="stat-ctrl" id="statFlowCtrl"></div><div class="stat-label">Flow Score</div></div>
+    <div class="stat-card" id="cycleTimeCard"><div class="stat-value teal" id="statCycleTime">-</div><div class="stat-ctrl" id="statCycleTimeCtrl"></div><div class="stat-label">Cycle Time</div></div>
+    <div class="stat-card" id="perfScoreCard"><div class="stat-value sky" id="statPerfScore">-</div><div class="stat-ctrl" id="statPerfCtrl"></div><div class="stat-label">Performance</div></div>
+    <div class="stat-card" id="bottleneckCard"><div class="stat-value" id="statBottlenecks">None yet</div><div class="stat-label">Bottleneck</div></div>
+  </div>
+  <div class="stats-panel">
+    <div class="stat-card"><div class="stat-value green" id="statThroughput">0.0</div><div class="stat-label">Total Throughput</div><div class="stat-ctrl" id="statThroughputCtrl"></div></div>
+    <div class="stat-card"><div class="stat-value yellow" id="statTheoretical">0.0</div><div class="stat-label">Expected Throughput</div></div>
+    <div class="stat-card"><div class="stat-value" id="statAvg">0.0</div><div class="stat-label">Avg Throughput / Round</div><div class="stat-sub">expected 3.5</div><div class="stat-ctrl" id="statAvgCtrl"></div></div>
+    <div class="stat-card"><div class="stat-value teal" id="statWIP">0</div><div class="stat-label">WIP Inventory</div><div class="stat-ctrl" id="statWIPCtrl"></div></div>
+    <div class="stat-card"><div class="stat-value red" id="statLost">0</div><div class="stat-label">Total Lost Throughput</div><div class="stat-sub" id="statLostSub"></div><div class="stat-ctrl" id="statLostCtrl"></div></div>
+    <div class="stat-card"><div class="stat-value purple" id="statOverprod">0</div><div class="stat-label">Total Overproduction</div><div class="stat-sub" id="statOverprodSub"></div><div class="stat-ctrl" id="statOverprodCtrl"></div></div>
+    <div class="stat-card" id="scrapCard" style="display:none"><div class="stat-value purple" id="statScrap">0</div><div class="stat-label">Scrap</div><div class="stat-sub" id="statScrapSub"></div></div>
+  </div>
+</div>
+
+<div class="comparison-section">
+  <div class="comparison-toggle">
+    <button id="compToggleBtn" onclick="toggleComparison()">Show Comparison vs. No Interventions</button>
+  </div>
+  <div class="comparison-table-wrap collapsed" id="compTableWrap">
+    <div class="comparison-header">vs. NO INTERVENTIONS (same dice rolls)</div>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Yours</th>
+          <th>Without</th>
+          <th>Change</th>
+        </tr>
+      </thead>
+      <tbody id="compTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="chart-container">
+  <div class="chart-wrapper">
+    <canvas id="chartCanvas"></canvas>
+  </div>
+</div>
+
+<footer>
+  Based on the dice game in <a href="https://en.wikipedia.org/wiki/The_Goal_(novel)" target="_blank">"The Goal"</a> by Eliyahu M. Goldratt (1984)
+</footer>
+
+<div class="animation-overlay" id="animOverlay"></div>
+
+<script>
+// ===== Station Names =====
+const NAMES = ['Herbie','Davey','Ron','Chuck','Evan','Andy','Alex','Ben','Jake','Hank'];
+
+// ===== Constants =====
+const DEFAULT_BUFFER_CAP = 4;
+const BUDGET_LEVELS = {
+  easy:    30,
+  medium:  20,
+  hard:    14,
+  extreme: 8,
+};
+const DEFECT_RANGES = {
+  easy:    [0.05, 0.10],
+  medium:  [0.10, 0.20],
+  hard:    [0.20, 0.30],
+  extreme: [0.30, 0.50],
+};
+
+// ===== Game State =====
+let playerState = null;   // user's line — rendered visually
+let controlState = null;  // vanilla line — runs silently
+let stationConfigs = [];  // per-station intervention configs
+let releaseRate = 6;
+let budgetUsed = 0;
+let budgetEnabled = false;
+let budgetDifficulty = 'easy';
+let chart = null;
+let autoPlaying = false;
+let paused = false;
+let animating = false;
+let comparisonVisible = false;
+let showControl = true;
+let defectsEnabled = false;
+let defectDifficulty = 'easy';
+let diceControlEnabled = false;
+let randomReducerEnabled = false;
+let bufferControlEnabled = false;
+let diceMode = 'normal'; // 'normal' | 'reducer' | 'control'
+
+const REDUCER_PRESETS = {
+  none:     [1, 6],
+  slight:   [2, 5],
+  moderate: [3, 4],
+};
+
+// ===== State Creation =====
+function createInitialState(numStations) {
+  return {
+    numStations,
+    round: 0,
+    inputBuffers: new Array(numStations).fill(0),
+    diceValues: new Array(numStations).fill(0),
+    moved: new Array(numStations).fill(0),
+    starved: new Array(numStations).fill(false),
+    totalThroughput: 0,
+    history: [],
+    cumulative: [],
+    theoretical: [],
+    wipHistory: [],
+    lostThroughput: 0,
+    lostHistory: [],
+    lostPerRound: [],
+    flowScoreHistory: [],
+    overproduction: 0,
+    overproductionHistory: [],
+    overproductionPerRound: [],
+    bottleneckHistory: [],
+    bottleneckStations: [],
+    bottleneckMoving: false,
+    // Rolling window bottleneck detection
+    bufferHitHistory: new Array(numStations).fill(null).map(() => []),
+    currentBottleneck: -1,
+    bottleneckConsecutive: 0,
+    bottleneckRecentList: [],
+    // Scrap tracking (player only uses these)
+    totalScrap: 0,
+    scrapHistory: [],
+    scrapPerRound: [],
+    // Per-round bottleneck index for charting
+    bottleneckIndexHistory: [],
+    bottleneckMovingHistory: [],
+    // Cycle time & performance tracking
+    cycleTimeHistory: [],
+    cycleTimeScoreHistory: [],
+    performanceScoreHistory: [],
+  };
+}
+
+function createDefaultConfigs(n) {
+  const configs = [];
+  for (let i = 0; i < n; i++) {
+    configs.push({
+      bufferCap: DEFAULT_BUFFER_CAP,
+      diceMin: 1,
+      diceMax: 6,
+      overtime: false,
+      inspectBefore: false,
+    });
+  }
+  return configs;
+}
+
+function rollDie() {
+  return Math.floor(Math.random() * 6) + 1;
+}
+
+// ===== Budget Calculation =====
+function calculateBudget() {
+  let cost = 0;
+  for (let i = 0; i < stationConfigs.length; i++) {
+    const cfg = stationConfigs[i];
+    // Dice narrowing: 1 point per step narrowed from default 1-6
+    const defaultRange = 6; // 1-6 = 6 values
+    const currentRange = cfg.diceMax - cfg.diceMin + 1;
+    const narrowed = defaultRange - currentRange;
+    if (narrowed > 0) cost += narrowed;
+    // Overtime: 3 points
+    if (cfg.overtime) cost += 3;
+    // Inspection: 1 point
+    if (cfg.inspectBefore) cost += 1;
+  }
+  // Release rate: free
+  return cost;
+}
+
+function getTotalBudget() {
+  return BUDGET_LEVELS[budgetDifficulty];
+}
+
+function updateBudgetDisplay() {
+  if (!budgetEnabled) return;
+  budgetUsed = calculateBudget();
+  const total = getTotalBudget();
+  const pct = Math.min(budgetUsed / total * 100, 100);
+  const barEl = document.getElementById('budgetBarFill');
+  const textEl = document.getElementById('budgetText');
+  barEl.style.width = pct + '%';
+  const over = budgetUsed > total;
+  barEl.classList.toggle('over', over);
+  textEl.textContent = budgetUsed + '/' + total;
+  textEl.classList.toggle('over', over);
+  // Enforce budget: disable controls that would exceed budget
+  enforcebudget();
+}
+
+function enforcebudget() {
+  if (!budgetEnabled) {
+    // No budget — enable everything
+    document.querySelectorAll('.station-controls select, .btn-ot, .station-bottom-controls select, .station-bottom-controls input[type="checkbox"]').forEach(el => {
+      el.disabled = false;
+    });
+    // Still hide inspect if defects off
+    if (!defectsEnabled) {
+      document.querySelectorAll('.inspect-wrap').forEach(el => el.style.display = 'none');
+    }
+    return;
+  }
+  const total = getTotalBudget();
+  for (let i = 0; i < stationConfigs.length; i++) {
+    const cfg = stationConfigs[i];
+    const currentCost = calculateBudget();
+
+    // Overtime button
+    const otBtn = document.getElementById(`ot-${i}`);
+    if (otBtn && !cfg.overtime && currentCost + 3 > total) {
+      otBtn.disabled = true;
+    } else if (otBtn) {
+      otBtn.disabled = false;
+    }
+
+    // Inspect checkbox
+    const inspEl = document.getElementById(`inspect-${i}`);
+    if (inspEl && !cfg.inspectBefore && currentCost + 1 > total) {
+      inspEl.disabled = true;
+    } else if (inspEl) {
+      inspEl.disabled = false;
+    }
+
+    // Dice min/max — disable options that narrow further than budget allows
+    const minSel = document.getElementById(`dmin-${i}`);
+    const maxSel = document.getElementById(`dmax-${i}`);
+    if (minSel && maxSel) {
+      const currentNarrow = (6) - (cfg.diceMax - cfg.diceMin + 1);
+      for (const opt of minSel.options) {
+        const newMin = parseInt(opt.value);
+        const newRange = cfg.diceMax - newMin + 1;
+        if (newRange < 1) { opt.disabled = true; continue; }
+        const newNarrow = 6 - newRange;
+        const addedCost = newNarrow - currentNarrow;
+        opt.disabled = (currentCost + addedCost > total && addedCost > 0);
+      }
+      for (const opt of maxSel.options) {
+        const newMax = parseInt(opt.value);
+        const newRange = newMax - cfg.diceMin + 1;
+        if (newRange < 1) { opt.disabled = true; continue; }
+        const newNarrow = 6 - newRange;
+        const addedCost = newNarrow - currentNarrow;
+        opt.disabled = (currentCost + addedCost > total && addedCost > 0);
+      }
+    }
+
+    // Reducer select — disable presets that cost too much
+    const reducerSel = document.getElementById(`reducer-${i}`);
+    if (reducerSel) {
+      const currentNarrow = 6 - (cfg.diceMax - cfg.diceMin + 1);
+      for (const opt of reducerSel.options) {
+        const [pMin, pMax] = REDUCER_PRESETS[opt.value];
+        const newNarrow = 6 - (pMax - pMin + 1);
+        const addedCost = newNarrow - currentNarrow;
+        opt.disabled = (currentCost + addedCost > total && addedCost > 0);
+      }
+    }
+  }
+}
+
+// ===== Cycle Time (Little's Law) =====
+function computeCycleTimeScores(pState, cState) {
+  // Cycle Time = (Avg WIP / Throughput Rate) × minutes per round
+  // Each bowl = 1 minute, so minutes per round = numStations
+  function calcCycleTime(st) {
+    if (st.round === 0 || st.totalThroughput === 0) return null;
+    const avgWIP = st.wipHistory.reduce((a, b) => a + b, 0) / st.wipHistory.length;
+    const throughputRate = st.totalThroughput / st.round;
+    const minutesPerRound = st.numStations;
+    return (avgWIP / throughputRate) * minutesPerRound;
+  }
+  const pCT = calcCycleTime(pState);
+  const cCT = calcCycleTime(cState);
+
+  pState.cycleTimeHistory.push(pCT);
+  cState.cycleTimeHistory.push(cCT);
+
+  // Cycle Time Score: 100 × (controlCT / playerCT), capped at 100
+  // Lower player CT = higher score (matching control = 100%)
+  let ctScore = null;
+  if (pCT !== null && cCT !== null && pCT > 0) {
+    ctScore = Math.min(100, Math.round(cCT / pCT * 100));
+  }
+  pState.cycleTimeScoreHistory.push(ctScore);
+  cState.cycleTimeScoreHistory.push(100); // control always scores 100 against itself
+
+  // Performance Score: geometric mean of Flow Score and CT Score
+  const pFlow = pState.flowScoreHistory[pState.flowScoreHistory.length - 1];
+  let perfScore = null;
+  if (ctScore !== null && pFlow != null) {
+    perfScore = Math.round(Math.sqrt(pFlow * ctScore));
+  }
+  pState.performanceScoreHistory.push(perfScore);
+
+  const cFlow = cState.flowScoreHistory[cState.flowScoreHistory.length - 1];
+  cState.performanceScoreHistory.push(cFlow != null ? Math.round(Math.sqrt(cFlow * 100)) : null);
+}
+
+// ===== Dual Engine: Execute Round =====
+function executeRound() {
+  const n = playerState.numStations;
+
+  // 1. Generate shared dice rolls
+  const rolls = [];
+  for (let i = 0; i < n; i++) rolls.push(rollDie());
+
+  // 2. Run control engine (vanilla — no interventions)
+  executeVanillaRound(controlState, rolls);
+
+  // 3. Run player engine (with interventions)
+  executePlayerRound(playerState, rolls);
+
+  // 4. Compute cycle time & performance scores (needs both states)
+  computeCycleTimeScores(playerState, controlState);
+}
+
+function executeVanillaRound(st, rolls) {
+  st.round++;
+  const BUFFER_CAP = DEFAULT_BUFFER_CAP;
+  for (let i = 0; i < st.numStations; i++) st.diceValues[i] = rolls[i];
+
+  let roundThroughput = 0;
+  let roundOverproduction = 0;
+  const roundBottleneckStations = [];
+
+  for (let i = 0; i < st.numStations; i++) {
+    const roll = rolls[i];
+    let available;
+    if (i === 0) {
+      available = roll;
+    } else {
+      available = Math.min(roll, st.inputBuffers[i]);
+    }
+    st.moved[i] = available;
+    st.starved[i] = (i > 0 && roll > st.inputBuffers[i]);
+
+    if (i > 0) st.inputBuffers[i] -= available;
+    if (i < st.numStations - 1) {
+      const newBuffer = st.inputBuffers[i + 1] + available;
+      if (newBuffer >= BUFFER_CAP) {
+        roundBottleneckStations.push(i + 1);
+        if (newBuffer > BUFFER_CAP) roundOverproduction += newBuffer - BUFFER_CAP;
+        st.inputBuffers[i + 1] = BUFFER_CAP;
+      } else {
+        st.inputBuffers[i + 1] = newBuffer;
+      }
+    } else {
+      roundThroughput = available;
+    }
+  }
+
+  st.totalThroughput += roundThroughput;
+  st.overproduction += roundOverproduction;
+  st.history.push(roundThroughput);
+  st.cumulative.push(st.totalThroughput);
+  st.theoretical.push(3.5 * st.round);
+  st.lostThroughput = 3.5 * st.round - st.totalThroughput;
+  st.lostHistory.push(st.lostThroughput);
+  st.lostPerRound.push(3.5 - roundThroughput);
+  st.overproductionHistory.push(st.overproduction);
+  st.overproductionPerRound.push(roundOverproduction);
+
+  // Rolling window bottleneck detection
+  updateBottleneckDetection(st, roundBottleneckStations);
+
+  const wip = st.inputBuffers.reduce((a, b) => a + b, 0);
+  st.wipHistory.push(wip);
+
+  const throughputEff = st.totalThroughput / (3.5 * st.round);
+  const idealWIP = st.numStations;
+  const inventoryEff = idealWIP / (idealWIP + wip);
+  st.flowScoreHistory.push(Math.round(throughputEff * inventoryEff * 100));
+
+  st.scrapPerRound.push(0);
+  st.scrapHistory.push(st.totalScrap);
+}
+
+function executePlayerRound(st, rolls) {
+  executePlayerRoundClean(st, rolls);
+}
+
+function executePlayerRoundClean(st, rolls) {
+  st.round++;
+  const n = st.numStations;
+  let roundThroughput = 0;
+  let roundOverproduction = 0;
+  let roundScrap = 0;
+  const roundBottleneckStations = [];
+
+  // Step 1: Compute effective dice values
+  for (let i = 0; i < n; i++) {
+    const cfg = stationConfigs[i];
+    let val = rolls[i];
+    if (cfg.overtime) {
+      val = Math.max(val, rollDie());
+    }
+    val = Math.max(cfg.diceMin, Math.min(cfg.diceMax, val));
+    st.diceValues[i] = val;
+  }
+
+  // Step 2: Generate per-station defect rates for this round (if defects enabled)
+  const stationDefectRates = [];
+  if (defectsEnabled) {
+    const [lo, hi] = DEFECT_RANGES[defectDifficulty];
+    for (let i = 0; i < n; i++) {
+      stationDefectRates.push(lo + Math.random() * (hi - lo));
+    }
+  } else {
+    for (let i = 0; i < n; i++) stationDefectRates.push(0);
+  }
+
+  // Step 3: Process stations left to right
+  for (let i = 0; i < n; i++) {
+    const cfg = stationConfigs[i];
+    const effectiveRoll = st.diceValues[i];
+
+    // Determine raw available (before inspection)
+    let rawAvailable;
+    if (i === 0) {
+      rawAvailable = Math.min(effectiveRoll, releaseRate);
+    } else {
+      rawAvailable = Math.min(effectiveRoll, st.inputBuffers[i]);
+    }
+
+    // Inspection: if this station inspects, catch defects from upstream station
+    let goodItems = rawAvailable;
+    let inspectedScrap = 0;
+    if (i > 0 && cfg.inspectBefore && stationDefectRates[i - 1] > 0) {
+      for (let m = 0; m < rawAvailable; m++) {
+        if (Math.random() < stationDefectRates[i - 1]) {
+          inspectedScrap++;
+        }
+      }
+      goodItems = rawAvailable - inspectedScrap;
+      roundScrap += inspectedScrap;
+    }
+
+    // Defects at THIS station (items processed here may become defective)
+    let stationScrap = 0;
+    if (stationDefectRates[i] > 0) {
+      for (let m = 0; m < goodItems; m++) {
+        if (Math.random() < stationDefectRates[i]) {
+          stationScrap++;
+        }
+      }
+      goodItems -= stationScrap;
+      roundScrap += stationScrap;
+    }
+
+    st.moved[i] = goodItems;
+    st.starved[i] = (i > 0 && effectiveRoll > st.inputBuffers[i]);
+
+    // Remove from this station's input buffer (raw items taken, including scrapped)
+    if (i > 0) {
+      st.inputBuffers[i] -= rawAvailable;
+    }
+
+    // Add good items to next station's buffer or throughput
+    if (i < n - 1) {
+      const nextBufCap = stationConfigs[i + 1].bufferCap;
+      const newBuffer = st.inputBuffers[i + 1] + goodItems;
+      if (newBuffer >= nextBufCap) {
+        roundBottleneckStations.push(i + 1);
+        if (newBuffer > nextBufCap) roundOverproduction += newBuffer - nextBufCap;
+        st.inputBuffers[i + 1] = nextBufCap;
+      } else {
+        st.inputBuffers[i + 1] = newBuffer;
+      }
+    } else {
+      roundThroughput = goodItems;
+    }
+  }
+
+  st.totalThroughput += roundThroughput;
+  st.overproduction += roundOverproduction;
+  st.totalScrap += roundScrap;
+  st.history.push(roundThroughput);
+  st.cumulative.push(st.totalThroughput);
+  st.theoretical.push(3.5 * st.round);
+  st.lostThroughput = 3.5 * st.round - st.totalThroughput;
+  st.lostHistory.push(st.lostThroughput);
+  st.lostPerRound.push(3.5 - roundThroughput);
+  st.overproductionHistory.push(st.overproduction);
+  st.overproductionPerRound.push(roundOverproduction);
+  st.scrapPerRound.push(roundScrap);
+  st.scrapHistory.push(st.totalScrap);
+
+  // Rolling window bottleneck detection
+  updateBottleneckDetection(st, roundBottleneckStations);
+
+  const wip = st.inputBuffers.reduce((a, b) => a + b, 0);
+  st.wipHistory.push(wip);
+
+  const throughputEff = st.totalThroughput / (3.5 * st.round);
+  const idealWIP = st.numStations;
+  const inventoryEff = idealWIP / (idealWIP + wip);
+  st.flowScoreHistory.push(Math.round(throughputEff * inventoryEff * 100));
+}
+
+function updateBottleneckDetection(st, roundBottleneckStations) {
+  const WINDOW = 10;
+  for (let i = 0; i < st.numStations; i++) {
+    const hitCap = roundBottleneckStations.includes(i);
+    st.bufferHitHistory[i].push(hitCap);
+    if (st.bufferHitHistory[i].length > WINDOW) st.bufferHitHistory[i].shift();
+  }
+
+  // Find station with highest frequency of hitting cap over rolling window
+  let maxFreq = 0;
+  let maxStation = -1;
+  for (let i = 1; i < st.numStations; i++) {
+    const hist = st.bufferHitHistory[i];
+    if (hist.length === 0) continue;
+    const freq = hist.filter(Boolean).length / hist.length;
+    if (freq > maxFreq) { maxFreq = freq; maxStation = i; }
+  }
+  if (maxFreq === 0) maxStation = -1;
+
+  const prevBottleneck = st.currentBottleneck;
+  if (maxStation === prevBottleneck && maxStation !== -1) {
+    st.bottleneckConsecutive++;
+  } else {
+    st.bottleneckConsecutive = maxStation === -1 ? 0 : 1;
+  }
+  st.currentBottleneck = maxStation;
+
+  if (maxStation !== -1) {
+    st.bottleneckRecentList.push(maxStation);
+    if (st.bottleneckRecentList.length > 5) st.bottleneckRecentList.shift();
+  }
+
+  // Detect if the dominant bottleneck has been shifting around
+  const uniqueRecent = [...new Set(st.bottleneckRecentList)];
+  const isMoving = uniqueRecent.length > 1 && st.bottleneckConsecutive < 5;
+  st.bottleneckMoving = isMoving;
+
+  st.bottleneckStations = roundBottleneckStations;
+  const multipleThisRound = roundBottleneckStations.length > 1;
+
+  // Severity: 'none' | 'single' | 'multi' | 'critical'
+  if (roundBottleneckStations.length === 0) {
+    st.bottleneckSeverity = 'none';
+  } else if (!multipleThisRound && !isMoving) {
+    st.bottleneckSeverity = 'single';
+  } else if (multipleThisRound && isMoving) {
+    st.bottleneckSeverity = 'critical';
+  } else {
+    st.bottleneckSeverity = 'multi'; // multiple OR moving
+  }
+
+  st.bottleneckHistory.push(roundBottleneckStations.length);
+  st.bottleneckIndexHistory.push(st.currentBottleneck === -1 ? null : st.currentBottleneck);
+  st.bottleneckMovingHistory.push(st.bottleneckMoving);
+}
+
+// ===== DOM Building =====
+function buildDOM() {
+  const line = document.getElementById('productionLine');
+  line.innerHTML = '';
+
+  // Matchbox
+  const mb = document.createElement('div');
+  mb.className = 'matchbox';
+  mb.innerHTML = `
+    <div class="matchbox-label">Raw Materials</div>
+    <div class="matchbox-body">
+      <div class="matchbox-tray">
+        <div class="matchbox-heads">
+          ${Array(7).fill('<div class="match-head"></div>').join('')}
+        </div>
+        <div class="matchbox-sticks">
+          ${Array(7).fill('<div class="match-stick"></div>').join('')}
+        </div>
+      </div>
+      <div class="matchbox-sleeve"></div>
+    </div>
+  `;
+  line.appendChild(mb);
+  line.appendChild(makeArrow());
+
+  // Stations
+  for (let i = 0; i < playerState.numStations; i++) {
+    const cfg = stationConfigs[i];
+    const st = document.createElement('div');
+    st.className = 'station';
+    st.id = `station-${i}`;
+
+    // Build min/max options
+    let minOpts = '', maxOpts = '';
+    for (let v = 1; v <= 5; v++) {
+      minOpts += `<option value="${v}"${v === cfg.diceMin ? ' selected' : ''}>${v}</option>`;
+    }
+    for (let v = 2; v <= 6; v++) {
+      maxOpts += `<option value="${v}"${v === cfg.diceMax ? ' selected' : ''}>${v}</option>`;
+    }
+
+    // Build buffer cap options
+    let bufOpts = '';
+    [2, 4, 6, 8, 10, 12, 14, 16].forEach(v => {
+      bufOpts += `<option value="${v}"${v === cfg.bufferCap ? ' selected' : ''}>${v}</option>`;
+    });
+
+    const canInspect = i > 0;
+
+    st.innerHTML = `
+      <svg class="bottle-glow" viewBox="0 0 50 110" xmlns="http://www.w3.org/2000/svg">
+        <rect x="19" y="1" width="12" height="4" rx="1" fill="currentColor"/>
+        <rect x="18" y="5" width="14" height="3" rx="1.5" fill="currentColor"/>
+        <rect x="19" y="8" width="12" height="22" rx="3" fill="currentColor"/>
+        <path d="M19 30 Q6 36, 6 46 L6 96 Q6 108, 25 108 Q44 108, 44 96 L44 46 Q44 36, 31 30 Z" fill="currentColor"/>
+      </svg>
+      <div class="station-name">${NAMES[i]}</div>
+      <div class="die-container">
+        <div class="die" id="die-${i}">
+          ${[0,1,2,3,4,5,6,7,8].map(d => `<div class="dot" id="dot-${i}-${d}"></div>`).join('')}
+        </div>
+      </div>
+      <div class="station-controls">
+        <div class="dice-control-wrap" style="display:${diceControlEnabled ? 'flex' : 'none'}">
+          <select id="dmin-${i}" title="Min die" onchange="onDiceMinChange(${i})">${minOpts}</select>
+          <select id="dmax-${i}" title="Max die" onchange="onDiceMaxChange(${i})">${maxOpts}</select>
+        </div>
+        <div class="reducer-wrap" style="display:${randomReducerEnabled ? 'flex' : 'none'}">
+          <select id="reducer-${i}" title="Reduce randomness" onchange="onReducerChange(${i})">
+            <option value="none">1-6</option>
+            <option value="slight">2-5</option>
+            <option value="moderate">3-4</option>
+          </select>
+        </div>
+        <button class="btn-ot${cfg.overtime ? ' active' : ''}" id="ot-${i}" title="Overtime (+3 pts)" onclick="onOvertimeToggle(${i})" style="display:${budgetEnabled ? '' : 'none'}">OT</button>
+      </div>
+      <div class="bowl-area" id="bowl-area-${i}">
+        <svg class="bowl-svg" viewBox="0 0 80 55">
+          <defs>
+            <linearGradient id="bowlGrad-${i}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a07040"/>
+              <stop offset="50%" stop-color="#c89060"/>
+              <stop offset="100%" stop-color="#a07040"/>
+            </linearGradient>
+          </defs>
+          <path d="M 5 10 Q 5 48, 40 48 Q 75 48, 75 10" fill="none" stroke="url(#bowlGrad-${i})" stroke-width="5" stroke-linecap="round"/>
+          <path d="M 7 12 Q 7 46, 40 46 Q 73 46, 73 12" fill="rgba(15,31,58,0.7)" stroke="none"/>
+          <path d="M 8 10 Q 8 10, 14 10" fill="none" stroke="rgba(255,220,160,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div class="bowl-matches" id="bowl-matches-${i}"></div>
+      </div>
+      <div class="station-bottom-controls">
+        <div class="row buffer-control-row" style="display:${bufferControlEnabled ? 'flex' : 'none'}">
+          <span class="lbl-tiny">buf:</span>
+          <select id="bufcap-${i}" title="Buffer capacity" onchange="onBufferCapChange(${i})">${bufOpts}</select>
+        </div>
+        ${canInspect ? `<div class="row"><label class="inspect-wrap" title="Inspect incoming items (catches upstream defects)" style="display:${defectsEnabled ? 'flex' : 'none'}"><input type="checkbox" id="inspect-${i}" ${cfg.inspectBefore ? 'checked' : ''} onchange="onInspectChange(${i})"><span class="lbl-tiny">inspect</span></label></div>` : ''}
+      </div>
+      <div class="bowl-count" id="bowl-count-${i}">${i === 0 ? '' : '0'}</div>
+      <div class="moved-info" id="moved-${i}"></div>
+      <div class="inventory-bar-track"><div class="inventory-bar-fill" id="inv-bar-${i}" style="width:0%"></div></div>
+    `;
+    line.appendChild(st);
+
+    if (i < playerState.numStations - 1) {
+      line.appendChild(makeArrow());
+    }
+  }
+
+  // Arrow to finished
+  line.appendChild(makeArrow());
+
+  // Finished goods tray
+  const ft = document.createElement('div');
+  ft.className = 'finished-tray';
+  ft.innerHTML = `
+    <div class="finished-label">Finished</div>
+    <div class="finished-body" id="finishedBody"></div>
+    <div class="finished-count" id="finishedCount">0</div>
+  `;
+  line.appendChild(ft);
+}
+
+function makeArrow() {
+  const a = document.createElement('div');
+  a.className = 'arrow';
+  a.textContent = '\u25B6';
+  return a;
+}
+
+// ===== Control Event Handlers =====
+function onDiceMinChange(i) {
+  const val = parseInt(document.getElementById(`dmin-${i}`).value);
+  stationConfigs[i].diceMin = val;
+  // Ensure max >= min
+  if (stationConfigs[i].diceMax < val) {
+    stationConfigs[i].diceMax = val;
+    document.getElementById(`dmax-${i}`).value = val;
+  }
+  updateBudgetDisplay();
+}
+
+function onDiceMaxChange(i) {
+  const val = parseInt(document.getElementById(`dmax-${i}`).value);
+  stationConfigs[i].diceMax = val;
+  if (stationConfigs[i].diceMin > val) {
+    stationConfigs[i].diceMin = val;
+    document.getElementById(`dmin-${i}`).value = val;
+  }
+  updateBudgetDisplay();
+}
+
+function onOvertimeToggle(i) {
+  const cfg = stationConfigs[i];
+  if (!cfg.overtime && budgetEnabled && calculateBudget() + 3 > getTotalBudget()) return;
+  cfg.overtime = !cfg.overtime;
+  document.getElementById(`ot-${i}`).classList.toggle('active', cfg.overtime);
+  updateBudgetDisplay();
+}
+
+function onBufferCapChange(i) {
+  stationConfigs[i].bufferCap = parseInt(document.getElementById(`bufcap-${i}`).value);
+  updateBudgetDisplay();
+}
+
+function onDefectsToggle() {
+  defectsEnabled = document.getElementById('defectsToggle').checked;
+  document.getElementById('defectsSub').style.display = defectsEnabled ? 'flex' : 'none';
+  document.getElementById('scrapCard').style.display = defectsEnabled ? '' : 'none';
+  // Show/hide inspect checkboxes
+  document.querySelectorAll('.inspect-wrap').forEach(el => {
+    el.style.display = defectsEnabled ? 'flex' : 'none';
+  });
+  // Clear inspect configs when defects turned off
+  if (!defectsEnabled) {
+    for (let i = 0; i < stationConfigs.length; i++) {
+      stationConfigs[i].inspectBefore = false;
+      const el = document.getElementById(`inspect-${i}`);
+      if (el) el.checked = false;
+    }
+  }
+  updateBudgetDisplay();
+}
+
+function onDifficultyChange() {
+  defectDifficulty = document.getElementById('defectDifficulty').value;
+}
+
+function onBudgetToggle() {
+  budgetEnabled = document.getElementById('budgetToggle').checked;
+  document.getElementById('budgetSub').style.display = budgetEnabled ? 'flex' : 'none';
+
+  // Enable/disable dice mode radios
+  document.querySelectorAll('input[name="diceMode"]').forEach(r => r.disabled = !budgetEnabled);
+
+  // If turning off, reset dice to Normal
+  if (!budgetEnabled) {
+    document.getElementById('dmNormal').checked = true;
+    onDiceModeChange();
+  }
+
+  // Show/hide OT buttons
+  document.querySelectorAll('.btn-ot').forEach(el => {
+    el.style.display = budgetEnabled ? '' : 'none';
+  });
+  // Clear overtime when budget turned off
+  if (!budgetEnabled) {
+    for (let i = 0; i < stationConfigs.length; i++) {
+      stationConfigs[i].overtime = false;
+      const btn = document.getElementById(`ot-${i}`);
+      if (btn) btn.classList.remove('active');
+    }
+    enforcebudget();
+  } else {
+    updateBudgetDisplay();
+  }
+}
+
+function onBudgetDifficultyChange() {
+  budgetDifficulty = document.getElementById('budgetDifficulty').value;
+  updateBudgetDisplay();
+}
+
+function onInspectChange(i) {
+  const el = document.getElementById(`inspect-${i}`);
+  const cfg = stationConfigs[i];
+  if (!cfg.inspectBefore && budgetEnabled && calculateBudget() + 1 > getTotalBudget()) {
+    el.checked = false;
+    return;
+  }
+  cfg.inspectBefore = el.checked;
+  updateBudgetDisplay();
+}
+
+function onReleaseRateChange() {
+  releaseRate = parseInt(document.getElementById('releaseRate').value);
+}
+
+function onShowControlToggle() {
+  showControl = document.getElementById('showControlToggle').checked;
+  document.querySelectorAll('.stat-ctrl').forEach(el => {
+    el.style.display = showControl ? '' : 'none';
+  });
+}
+
+function onDiceModeChange() {
+  const prev = diceMode;
+  diceMode = document.querySelector('input[name="diceMode"]:checked').value;
+  diceControlEnabled = diceMode === 'control';
+  randomReducerEnabled = diceMode === 'reducer';
+
+  // Update description
+  const descs = { normal: 'standard 1-6 dice, no interventions', reducer: 'preset range reduction per station', control: 'full min/max control per station' };
+  document.getElementById('diceModeDesc').textContent = descs[diceMode];
+
+  // Reset previous mode's values
+  if (prev === 'control' && diceMode !== 'control') resetDiceRanges();
+  if (prev === 'reducer' && diceMode !== 'reducer') resetReducers();
+
+  // Show/hide station controls
+  document.querySelectorAll('.dice-control-wrap').forEach(el => el.style.display = diceControlEnabled ? 'flex' : 'none');
+  document.querySelectorAll('.reducer-wrap').forEach(el => el.style.display = randomReducerEnabled ? 'flex' : 'none');
+  updateBudgetDisplay();
+}
+
+function onBufferControlToggle() {
+  bufferControlEnabled = document.getElementById('bufferControlToggle').checked;
+  document.querySelectorAll('.buffer-control-row').forEach(el => {
+    el.style.display = bufferControlEnabled ? 'flex' : 'none';
+  });
+  // When turning off, reset all buffers to default
+  if (!bufferControlEnabled) {
+    for (let i = 0; i < stationConfigs.length; i++) {
+      stationConfigs[i].bufferCap = DEFAULT_BUFFER_CAP;
+      const sel = document.getElementById(`bufcap-${i}`);
+      if (sel) sel.value = DEFAULT_BUFFER_CAP;
+    }
+    updateBudgetDisplay();
+  }
+}
+
+function onReducerChange(i) {
+  const preset = document.getElementById(`reducer-${i}`).value;
+  const [min, max] = REDUCER_PRESETS[preset];
+  stationConfigs[i].diceMin = min;
+  stationConfigs[i].diceMax = max;
+  updateBudgetDisplay();
+}
+
+function resetDiceRanges() {
+  for (let i = 0; i < stationConfigs.length; i++) {
+    stationConfigs[i].diceMin = 1;
+    stationConfigs[i].diceMax = 6;
+    const minEl = document.getElementById(`dmin-${i}`);
+    const maxEl = document.getElementById(`dmax-${i}`);
+    if (minEl) minEl.value = '1';
+    if (maxEl) maxEl.value = '6';
+  }
+  updateBudgetDisplay();
+}
+
+function resetReducers() {
+  for (let i = 0; i < stationConfigs.length; i++) {
+    stationConfigs[i].diceMin = 1;
+    stationConfigs[i].diceMax = 6;
+    const el = document.getElementById(`reducer-${i}`);
+    if (el) el.value = 'none';
+  }
+  updateBudgetDisplay();
+}
+
+// ===== Dice Face Rendering =====
+const DICE_DOTS = {
+  0: [],
+  1: [4],
+  2: [2, 6],
+  3: [2, 4, 6],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+};
+
+function renderDice() {
+  for (let i = 0; i < playerState.numStations; i++) {
+    const val = playerState.diceValues[i];
+    const visible = DICE_DOTS[val] || [];
+    for (let d = 0; d < 9; d++) {
+      const dot = document.getElementById(`dot-${i}-${d}`);
+      if (dot) dot.classList.toggle('visible', visible.includes(d));
+    }
+    const die = document.getElementById(`die-${i}`);
+    if (die) die.classList.toggle('starved', playerState.starved[i]);
+  }
+}
+
+function renderBowls() {
+  for (let i = 0; i < playerState.numStations; i++) {
+    const count = playerState.inputBuffers[i];
+    const countEl = document.getElementById(`bowl-count-${i}`);
+    if (countEl) countEl.textContent = i === 0 ? '' : count;
+
+    const matchesEl = document.getElementById(`bowl-matches-${i}`);
+    if (matchesEl && i > 0) {
+      const show = Math.min(count, 15);
+      matchesEl.innerHTML = '';
+      for (let m = 0; m < show; m++) {
+        matchesEl.innerHTML += `<div class="bowl-match"><div class="head"></div><div class="stick"></div></div>`;
+      }
+    }
+
+    const bar = document.getElementById(`inv-bar-${i}`);
+    if (bar && i > 0) {
+      const cap = stationConfigs[i].bufferCap;
+      const pct = Math.min(count / cap * 100, 100);
+      bar.style.width = pct + '%';
+      bar.classList.toggle('full', count >= cap);
+    }
+  }
+}
+
+function renderMoved() {
+  for (let i = 0; i < playerState.numStations; i++) {
+    const el = document.getElementById(`moved-${i}`);
+    if (el && playerState.round > 0) {
+      const m = playerState.moved[i];
+      const r = playerState.diceValues[i];
+      if (playerState.starved[i]) {
+        el.textContent = `Moved ${m}/${r}`;
+        el.className = 'moved-info starved-text';
+      } else {
+        el.textContent = `Moved ${m}`;
+        el.className = 'moved-info';
+      }
+    }
+  }
+}
+
+function renderStats() {
+  const st = playerState;
+  document.getElementById('statRound').textContent = st.round;
+  document.getElementById('statThroughput').textContent = st.totalThroughput.toFixed(1);
+  document.getElementById('statTheoretical').textContent = (3.5 * st.round).toFixed(1);
+
+  const avgEl = document.getElementById('statAvg');
+  if (st.round > 0) {
+    const avg = st.totalThroughput / st.round;
+    let avgArrow = '';
+    if (st.round > 1) {
+      const prevAvg = st.cumulative[st.cumulative.length - 2] / (st.round - 1);
+      if (avg > prevAvg + 0.01) avgArrow = ' <span class="trend-arrow trend-up-good">&#9650;</span>';
+      else if (avg < prevAvg - 0.01) avgArrow = ' <span class="trend-arrow trend-down-bad">&#9660;</span>';
+    }
+    avgEl.innerHTML = avg.toFixed(1) + avgArrow;
+    avgEl.className = 'stat-value ' + (avg >= 3.2 ? 'green' : avg >= 2.5 ? 'yellow' : 'red');
+  } else {
+    avgEl.innerHTML = '0.0';
+    avgEl.className = 'stat-value';
+  }
+
+  const wip = st.inputBuffers.reduce((a, b) => a + b, 0);
+  const wipEl = document.getElementById('statWIP');
+  let wipArrow = '';
+  if (st.round > 1) {
+    const prevWip = st.wipHistory[st.wipHistory.length - 1];
+    if (wip > prevWip) wipArrow = ' <span class="trend-arrow trend-up-bad">&#9650;</span>';
+    else if (wip < prevWip) wipArrow = ' <span class="trend-arrow trend-down-good">&#9660;</span>';
+  }
+  wipEl.innerHTML = wip + wipArrow;
+
+  // Lost Throughput with percentage + trend
+  const lostVal = typeof st.lostThroughput === 'number' ? st.lostThroughput : 0;
+  document.getElementById('statLost').textContent = Number.isInteger(lostVal) ? lostVal : lostVal.toFixed(1);
+  const lostSubEl = document.getElementById('statLostSub');
+  if (st.round > 0 && st.totalThroughput > 0) {
+    const lostPct = (lostVal / st.totalThroughput * 100);
+    const prevThroughput = st.round > 1 ? st.cumulative[st.cumulative.length - 2] : 0;
+    const prevLostPct = (st.round > 1 && prevThroughput > 0) ? (st.lostHistory[st.lostHistory.length - 2] / prevThroughput * 100) : null;
+    let lostArrow = '';
+    if (prevLostPct !== null) {
+      if (lostPct > prevLostPct + 0.1) lostArrow = ' <span class="trend-arrow trend-up-bad">&#9650;</span>';
+      else if (lostPct < prevLostPct - 0.1) lostArrow = ' <span class="trend-arrow trend-down-good">&#9660;</span>';
+    }
+    lostSubEl.innerHTML = lostPct.toFixed(0) + '% of total throughput' + lostArrow;
+  } else {
+    lostSubEl.innerHTML = '';
+  }
+
+  // Overproduction with percentage of throughput + trend
+  document.getElementById('statOverprod').textContent = st.overproduction;
+  const overprodSubEl = document.getElementById('statOverprodSub');
+  if (st.round > 0 && st.totalThroughput > 0) {
+    const overprodPct = (st.overproduction / st.totalThroughput * 100);
+    const prevThroughput = st.round > 1 ? st.cumulative[st.cumulative.length - 2] : 0;
+    const prevOverprodPct = (st.round > 1 && prevThroughput > 0) ? (st.overproductionHistory[st.overproductionHistory.length - 2] / prevThroughput * 100) : null;
+    let overprodArrow = '';
+    if (prevOverprodPct !== null) {
+      if (overprodPct > prevOverprodPct + 0.1) overprodArrow = ' <span class="trend-arrow trend-up-bad">&#9650;</span>';
+      else if (overprodPct < prevOverprodPct - 0.1) overprodArrow = ' <span class="trend-arrow trend-down-good">&#9660;</span>';
+    }
+    overprodSubEl.innerHTML = overprodPct.toFixed(0) + '% of throughput' + overprodArrow;
+  } else {
+    overprodSubEl.innerHTML = '';
+  }
+
+  // Scrap with trend
+  document.getElementById('statScrap').textContent = st.totalScrap;
+  const scrapSubEl = document.getElementById('statScrapSub');
+  if (st.round > 1) {
+    const currScrap = st.scrapPerRound[st.scrapPerRound.length - 1];
+    const prevScrap = st.scrapPerRound[st.scrapPerRound.length - 2];
+    let scrapArrow = '';
+    if (currScrap > prevScrap) scrapArrow = '<span class="trend-arrow trend-up-bad">&#9650;</span>';
+    else if (currScrap < prevScrap) scrapArrow = '<span class="trend-arrow trend-down-good">&#9660;</span>';
+    scrapSubEl.innerHTML = scrapArrow;
+  } else {
+    scrapSubEl.innerHTML = '';
+  }
+
+  // Bottleneck display with card pulsating based on severity
+  const bnEl = document.getElementById('statBottlenecks');
+  const bnCard = document.getElementById('bottleneckCard');
+  bnCard.classList.remove('bn-green', 'bn-yellow', 'bn-red', 'bn-critical');
+  const sev = st.bottleneckSeverity || 'none';
+  if (sev === 'none') {
+    bnEl.textContent = 'None';
+    bnEl.className = 'stat-value green';
+    if (st.round > 0) bnCard.classList.add('bn-green');
+  } else if (sev === 'single') {
+    const names = st.bottleneckStations.map(s => NAMES[s]).join(', ');
+    bnEl.textContent = names;
+    bnEl.className = 'stat-value orange';
+    bnCard.classList.add('bn-yellow');
+  } else if (sev === 'multi') {
+    const names = st.bottleneckStations.map(s => NAMES[s]).join(', ');
+    const label = st.bottleneckMoving ? 'Moving' : st.bottleneckStations.length + ' stations';
+    bnEl.textContent = label + ' (' + names + ')';
+    bnEl.className = 'stat-value red';
+    bnCard.classList.add('bn-red');
+  } else {
+    // critical — multiple AND moving
+    const names = st.bottleneckStations.map(s => NAMES[s]).join(', ');
+    bnEl.textContent = 'CRITICAL (' + names + ')';
+    bnEl.className = 'stat-value red';
+    bnCard.classList.add('bn-critical');
+  }
+
+  // Apply bottleneck highlight to ALL stations that hit buffer cap this round
+  const stationBnClass = sev === 'critical' ? 'bottleneck-critical' : sev === 'multi' ? 'bottleneck-multi' : 'bottleneck-stable';
+  for (let i = 0; i < st.numStations; i++) {
+    const stEl = document.getElementById(`station-${i}`);
+    if (!stEl) continue;
+    stEl.classList.remove('bottleneck-stable', 'bottleneck-multi', 'bottleneck-critical');
+    if (st.bottleneckStations.includes(i)) {
+      stEl.classList.add(stationBnClass);
+    }
+  }
+
+  // Flow Score — always pink with trend arrow + card border color
+  const flowEl = document.getElementById('statFlowScore');
+  const flowCard = document.getElementById('flowScoreCard');
+  flowCard.classList.remove('flow-green', 'flow-yellow', 'flow-red');
+  if (st.round > 0) {
+    const score = st.flowScoreHistory[st.flowScoreHistory.length - 1];
+    let flowArrow = '';
+    if (st.round > 1) {
+      const prevScore = st.flowScoreHistory[st.flowScoreHistory.length - 2];
+      if (score > prevScore) flowArrow = ' <span class="trend-arrow trend-up-good">&#9650;</span>';
+      else if (score < prevScore) flowArrow = ' <span class="trend-arrow trend-down-bad">&#9660;</span>';
+    }
+    flowEl.innerHTML = score + '%' + flowArrow;
+    flowEl.className = 'stat-value pink';
+    flowCard.classList.add(score > 80 ? 'flow-green' : score >= 50 ? 'flow-yellow' : 'flow-red');
+  } else {
+    flowEl.innerHTML = '-';
+    flowEl.className = 'stat-value pink';
+  }
+
+  // Cycle Time — teal, trend arrows inverted (down=good, up=bad)
+  const ctEl = document.getElementById('statCycleTime');
+  const ctCard = document.getElementById('cycleTimeCard');
+  ctCard.classList.remove('ct-green', 'ct-yellow', 'ct-red');
+  if (st.round > 0) {
+    const ct = st.cycleTimeHistory[st.cycleTimeHistory.length - 1];
+    if (ct !== null) {
+      let ctArrow = '';
+      if (st.round > 1) {
+        const prevCT = st.cycleTimeHistory[st.cycleTimeHistory.length - 2];
+        if (prevCT !== null) {
+          if (ct < prevCT - 0.1) ctArrow = ' <span class="trend-arrow trend-down-good">&#9660;</span>';
+          else if (ct > prevCT + 0.1) ctArrow = ' <span class="trend-arrow trend-up-bad">&#9650;</span>';
+        }
+      }
+      ctEl.innerHTML = ct.toFixed(1) + ' min' + ctArrow;
+      const theorMin = st.numStations; // 1 min per bowl = theoretical minimum
+      ctCard.classList.add(ct <= theorMin * 1.5 ? 'ct-green' : ct <= theorMin * 2 ? 'ct-yellow' : 'ct-red');
+    } else {
+      ctEl.innerHTML = '-';
+    }
+  } else {
+    ctEl.innerHTML = '-';
+  }
+
+  // Performance Score — sky blue, trend arrows normal (up=good)
+  const perfEl = document.getElementById('statPerfScore');
+  const perfCard = document.getElementById('perfScoreCard');
+  perfCard.classList.remove('perf-green', 'perf-yellow', 'perf-red');
+  if (st.round > 0) {
+    const perf = st.performanceScoreHistory[st.performanceScoreHistory.length - 1];
+    if (perf !== null) {
+      let perfArrow = '';
+      if (st.round > 1) {
+        const prevPerf = st.performanceScoreHistory[st.performanceScoreHistory.length - 2];
+        if (prevPerf !== null) {
+          if (perf > prevPerf) perfArrow = ' <span class="trend-arrow trend-up-good">&#9650;</span>';
+          else if (perf < prevPerf) perfArrow = ' <span class="trend-arrow trend-down-bad">&#9660;</span>';
+        }
+      }
+      perfEl.innerHTML = perf + '%' + perfArrow;
+      perfCard.classList.add(perf > 80 ? 'perf-green' : perf >= 50 ? 'perf-yellow' : 'perf-red');
+    } else {
+      perfEl.innerHTML = '-';
+    }
+  } else {
+    perfEl.innerHTML = '-';
+  }
+
+  // Control comparison values under stat cards
+  const ctrlIds = ['statThroughputCtrl','statAvgCtrl','statWIPCtrl','statLostCtrl','statOverprodCtrl','statFlowCtrl','statCycleTimeCtrl','statPerfCtrl'];
+  if (!showControl) {
+    ctrlIds.forEach(id => { document.getElementById(id).style.display = 'none'; });
+  } else {
+    ctrlIds.forEach(id => { document.getElementById(id).style.display = ''; });
+    const ct = controlState;
+    if (ct.round > 0) {
+      document.getElementById('statThroughputCtrl').textContent = 'ctrl: ' + ct.totalThroughput.toFixed(1);
+      document.getElementById('statAvgCtrl').textContent = 'ctrl: ' + (ct.totalThroughput / ct.round).toFixed(1);
+      const cWip = ct.inputBuffers.reduce((a, b) => a + b, 0);
+      document.getElementById('statWIPCtrl').textContent = 'ctrl: ' + cWip;
+      const cLost = typeof ct.lostThroughput === 'number' ? ct.lostThroughput : 0;
+      document.getElementById('statLostCtrl').textContent = 'ctrl: ' + (Number.isInteger(cLost) ? cLost : cLost.toFixed(1));
+      document.getElementById('statOverprodCtrl').textContent = 'ctrl: ' + ct.overproduction;
+      const cFlow = ct.flowScoreHistory[ct.flowScoreHistory.length - 1];
+      document.getElementById('statFlowCtrl').textContent = 'ctrl: ' + cFlow + '%';
+      const cCT = ct.cycleTimeHistory[ct.cycleTimeHistory.length - 1];
+      document.getElementById('statCycleTimeCtrl').textContent = cCT !== null ? 'ctrl: ' + cCT.toFixed(1) + ' min' : '';
+      const cPerf = ct.performanceScoreHistory[ct.performanceScoreHistory.length - 1];
+      document.getElementById('statPerfCtrl').textContent = cPerf !== null ? 'ctrl: ' + cPerf + '%' : '';
+    } else {
+      ctrlIds.forEach(id => { document.getElementById(id).textContent = ''; });
+    }
+  }
+}
+
+function renderFinished() {
+  const body = document.getElementById('finishedBody');
+  const countEl = document.getElementById('finishedCount');
+  if (body) {
+    const show = Math.min(playerState.totalThroughput, 80);
+    body.innerHTML = '';
+    for (let i = 0; i < show; i++) {
+      body.innerHTML += `<div class="tiny-match"><div class="head"></div><div class="stick"></div></div>`;
+    }
+    if (playerState.history.length > 0 && playerState.history[playerState.history.length - 1] > 0) {
+      body.classList.add('glow');
+      setTimeout(() => body.classList.remove('glow'), 600);
+    }
+  }
+  if (countEl) countEl.textContent = playerState.totalThroughput;
+}
+
+// ===== Comparison Dashboard =====
+function toggleComparison() {
+  comparisonVisible = !comparisonVisible;
+  const wrap = document.getElementById('compTableWrap');
+  const btn = document.getElementById('compToggleBtn');
+  wrap.classList.toggle('collapsed', !comparisonVisible);
+  btn.textContent = comparisonVisible ? 'Hide Comparison' : 'Show Comparison vs. No Interventions';
+}
+
+function renderComparison() {
+  if (!comparisonVisible) return;
+  const p = playerState;
+  const c = controlState;
+  if (p.round === 0) return;
+
+  const pWip = p.inputBuffers.reduce((a, b) => a + b, 0);
+  const cWip = c.inputBuffers.reduce((a, b) => a + b, 0);
+  const pFlow = p.flowScoreHistory[p.flowScoreHistory.length - 1];
+  const cFlow = c.flowScoreHistory[c.flowScoreHistory.length - 1];
+  const pAvg = p.totalThroughput / p.round;
+  const cAvg = c.totalThroughput / c.round;
+  const pCT = p.cycleTimeHistory[p.cycleTimeHistory.length - 1];
+  const cCT = c.cycleTimeHistory[c.cycleTimeHistory.length - 1];
+  const pPerf = p.performanceScoreHistory[p.performanceScoreHistory.length - 1];
+  const cPerf = c.performanceScoreHistory[c.performanceScoreHistory.length - 1];
+
+  const metrics = [
+    { name: 'Throughput', yours: p.totalThroughput.toFixed(1), without: c.totalThroughput.toFixed(1), diff: p.totalThroughput - c.totalThroughput, higherBetter: true },
+    { name: 'Avg Throughput/Round', yours: pAvg.toFixed(1), without: cAvg.toFixed(1), diff: pAvg - cAvg, higherBetter: true },
+    { name: 'WIP', yours: pWip, without: cWip, diff: pWip - cWip, higherBetter: false },
+    { name: 'Lost', yours: p.lostThroughput.toFixed ? p.lostThroughput.toFixed(1) : p.lostThroughput, without: c.lostThroughput.toFixed ? c.lostThroughput.toFixed(1) : c.lostThroughput, diff: p.lostThroughput - c.lostThroughput, higherBetter: false },
+    { name: 'Overproduction', yours: p.overproduction, without: c.overproduction, diff: p.overproduction - c.overproduction, higherBetter: false },
+    { name: 'Flow Score', yours: pFlow + '%', without: cFlow + '%', diff: pFlow - cFlow, higherBetter: true, suffix: '%' },
+    { name: 'Cycle Time', yours: pCT !== null ? pCT.toFixed(1) + ' min' : '\u2014', without: cCT !== null ? cCT.toFixed(1) + ' min' : '\u2014', diff: (pCT !== null && cCT !== null) ? pCT - cCT : null, higherBetter: false, suffix: ' min' },
+    { name: 'Performance', yours: pPerf !== null ? pPerf + '%' : '\u2014', without: cPerf !== null ? cPerf + '%' : '\u2014', diff: (pPerf !== null && cPerf !== null) ? pPerf - cPerf : null, higherBetter: true, suffix: '%' },
+    { name: 'Scrap', yours: p.totalScrap, without: '\u2014', diff: null, higherBetter: false },
+  ];
+
+  const tbody = document.getElementById('compTableBody');
+  tbody.innerHTML = '';
+  metrics.forEach(m => {
+    const tr = document.createElement('tr');
+    let changeText = '', changeClass = 'neutral';
+    if (m.diff !== null) {
+      const sign = m.diff > 0 ? '+' : '';
+      const arrow = m.diff > 0 ? ' \u25B2' : m.diff < 0 ? ' \u25BC' : '';
+      const isImprovement = m.higherBetter ? m.diff > 0 : m.diff < 0;
+      const isRegression = m.higherBetter ? m.diff < 0 : m.diff > 0;
+      changeText = sign + (typeof m.diff === 'number' && !Number.isInteger(m.diff) ? m.diff.toFixed(1) : m.diff) + (m.suffix || '') + arrow;
+      if (m.diff === 0) changeClass = 'neutral';
+      else changeClass = isImprovement ? 'improvement' : 'regression';
+    }
+    tr.innerHTML = `
+      <td>${m.name}</td>
+      <td>${m.yours}</td>
+      <td>${m.without}</td>
+      <td class="${changeClass}">${changeText}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ===== Chart =====
+function initChart() {
+  const ctx = document.getElementById('chartCanvas').getContext('2d');
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Your Actual',
+          type: 'line',
+          data: [],
+          borderColor: '#30a060',
+          backgroundColor: 'rgba(48,160,96,0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#30a060',
+          borderWidth: 4,
+          yAxisID: 'y',
+          order: 1,
+        },
+        {
+          label: 'Expected Throughput',
+          type: 'line',
+          data: [],
+          borderColor: '#f0c040',
+          borderDash: [6, 3],
+          backgroundColor: 'transparent',
+          tension: 0,
+          pointRadius: 0,
+          borderWidth: 4,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          label: 'Cumulative Lost',
+          type: 'line',
+          data: [],
+          borderColor: '#d04040',
+          backgroundColor: 'rgba(208,64,64,0.15)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#d04040',
+          yAxisID: 'y',
+          order: 3,
+        },
+        {
+          label: 'WIP Inventory',
+          type: 'line',
+          data: [],
+          borderColor: '#20b0b0',
+          backgroundColor: 'rgba(32,176,176,0.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#20b0b0',
+          yAxisID: 'y2',
+          order: 4,
+        },
+        {
+          label: 'Cumulative Overproduction',
+          type: 'line',
+          data: [],
+          borderColor: '#a060d0',
+          backgroundColor: 'rgba(160,96,208,0.12)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 2,
+          pointBackgroundColor: '#a060d0',
+          yAxisID: 'y',
+          order: 5,
+        },
+        {
+          label: 'Per-Round Throughput',
+          type: 'bar',
+          data: [],
+          backgroundColor: 'rgba(180,240,200,0.25)',
+          borderColor: 'rgba(180,240,200,0.5)',
+          borderWidth: 1,
+          yAxisID: 'y3',
+          order: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      aspectRatio: 2.5,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: {
+          labels: { color: '#8aa8c8', font: { size: 11 } },
+        },
+        tooltip: {
+          backgroundColor: '#0f1f3a',
+          titleColor: '#e0e8f0',
+          bodyColor: '#8aa8c8',
+          borderColor: '#1a3050',
+          borderWidth: 1,
+          callbacks: {
+            label: function(ctx) {
+              return ctx.dataset.label + ': ' + (typeof ctx.raw === 'number' ? ctx.raw.toFixed(1) : ctx.raw);
+            },
+            afterBody: function(items) {
+              if (!items.length || !playerState.scrapPerRound.length) return '';
+              const idx = items[0].dataIndex;
+              const lines = [];
+              if (idx < playerState.scrapPerRound.length && playerState.scrapPerRound[idx] > 0) {
+                lines.push('Scrap this round: ' + playerState.scrapPerRound[idx]);
+              }
+              return lines.join('\n');
+            }
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: '#4a6888', maxTicksLimit: 20, font: { size: 10 } },
+          grid: { color: 'rgba(26,48,80,0.5)' },
+          title: { display: true, text: 'Round', color: '#6088b0', font: { size: 11 } },
+        },
+        y: {
+          position: 'left',
+          ticks: { color: '#4a6888', font: { size: 10 } },
+          grid: { color: 'rgba(26,48,80,0.5)' },
+          title: { display: true, text: 'Cumulative', color: '#6088b0', font: { size: 11 } },
+          beginAtZero: true,
+        },
+        y2: {
+          position: 'right',
+          ticks: { color: '#20b0b0', font: { size: 10 } },
+          grid: { drawOnChartArea: false },
+          title: { display: true, text: 'WIP Inventory', color: '#20b0b0', font: { size: 11 } },
+          beginAtZero: true,
+        },
+        y3: {
+          display: false,
+          beginAtZero: true,
+          max: 6,
+        },
+      },
+    },
+  });
+}
+
+function updateChart() {
+  if (!chart) return;
+  const p = playerState;
+  const c = controlState;
+  chart.data.labels = p.cumulative.map((_, i) => i + 1);
+  chart.data.datasets[0].data = [...p.cumulative];            // Your Actual
+  chart.data.datasets[1].data = [...p.theoretical];           // Expected
+  chart.data.datasets[2].data = [...p.lostHistory];           // Lost
+  chart.data.datasets[3].data = [...p.wipHistory];            // WIP
+  chart.data.datasets[4].data = [...p.overproductionHistory]; // Overproduction
+  chart.data.datasets[5].data = [...p.history];               // Per-round bar
+  chart.update('none');
+}
+
+// ===== Animations =====
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function getSpeed() {
+  const v = parseInt(document.getElementById('speedSlider').value);
+  return 1600 - v * 150;
+}
+
+async function animateDiceRoll() {
+  const duration = Math.min(getSpeed() * 0.35, 500);
+  const dice = [];
+  for (let i = 0; i < playerState.numStations; i++) {
+    const die = document.getElementById(`die-${i}`);
+    if (die) { die.classList.add('rolling'); dice.push(die); }
+  }
+  const steps = Math.max(4, Math.floor(duration / 60));
+  for (let s = 0; s < steps; s++) {
+    for (let i = 0; i < playerState.numStations; i++) {
+      const fakeVal = Math.floor(Math.random() * 6) + 1;
+      showDieFace(i, fakeVal);
+    }
+    await sleep(60);
+  }
+  for (let i = 0; i < playerState.numStations; i++) {
+    const die = document.getElementById(`die-${i}`);
+    if (die) die.classList.remove('rolling');
+    showDieFace(i, playerState.diceValues[i]);
+  }
+}
+
+function showDieFace(station, value) {
+  const visible = DICE_DOTS[value] || [];
+  for (let d = 0; d < 9; d++) {
+    const dot = document.getElementById(`dot-${station}-${d}`);
+    if (dot) dot.classList.toggle('visible', visible.includes(d));
+  }
+}
+
+async function animateFlyingMatches() {
+  const overlay = document.getElementById('animOverlay');
+  const baseDelay = Math.min(getSpeed() * 0.08, 80);
+
+  for (let i = 0; i < playerState.numStations; i++) {
+    const count = playerState.moved[i];
+    if (count === 0) continue;
+
+    let sourceEl, targetEl;
+    if (i === 0) {
+      sourceEl = document.querySelector('.matchbox-body');
+    } else {
+      sourceEl = document.getElementById(`bowl-area-${i}`);
+    }
+    if (i < playerState.numStations - 1) {
+      targetEl = document.getElementById(`bowl-area-${i + 1}`);
+    } else {
+      targetEl = document.getElementById('finishedBody');
+    }
+    if (!sourceEl || !targetEl) continue;
+
+    const srcRect = sourceEl.getBoundingClientRect();
+    const tgtRect = targetEl.getBoundingClientRect();
+    const sx = srcRect.left + srcRect.width / 2;
+    const sy = srcRect.top + srcRect.height / 2;
+    const tx = tgtRect.left + tgtRect.width / 2;
+    const ty = tgtRect.top + tgtRect.height / 2;
+
+    const matches = [];
+    for (let m = 0; m < Math.min(count, 6); m++) {
+      const fm = document.createElement('div');
+      fm.className = 'flying-match';
+      fm.innerHTML = '<div class="head"></div><div class="stick"></div>';
+      fm.style.left = (sx + (Math.random() - 0.5) * 10) + 'px';
+      fm.style.top = (sy + (Math.random() - 0.5) * 10) + 'px';
+      fm.style.opacity = '1';
+      fm.style.transition = `left ${baseDelay * 4}ms ease-in-out, top ${baseDelay * 4}ms ease-in-out, opacity ${baseDelay * 2}ms ease`;
+      overlay.appendChild(fm);
+      matches.push(fm);
+    }
+
+    await sleep(20);
+    matches.forEach(fm => {
+      fm.style.left = (tx + (Math.random() - 0.5) * 10) + 'px';
+      fm.style.top = (ty + (Math.random() - 0.5) * 10) + 'px';
+    });
+    await sleep(baseDelay * 4);
+    matches.forEach(fm => { fm.style.opacity = '0'; });
+    await sleep(baseDelay * 2);
+    matches.forEach(fm => fm.remove());
+  }
+}
+
+// ===== Round Execution =====
+async function doRound() {
+  if (animating) return;
+  animating = true;
+  document.getElementById('btnRoll').disabled = true;
+
+  executeRound();
+
+  await animateDiceRoll();
+  renderDice();
+  await sleep(Math.min(getSpeed() * 0.15, 200));
+
+  await animateFlyingMatches();
+
+  renderBowls();
+  renderMoved();
+  renderStats();
+  renderFinished();
+  renderComparison();
+  updateChart();
+
+  animating = false;
+  if (!autoPlaying) {
+    document.getElementById('btnRoll').disabled = false;
+  }
+}
+
+// ===== Auto Play =====
+async function toggleAutoPlay() {
+  const btn = document.getElementById('btnAuto');
+  const pauseBtn = document.getElementById('btnPause');
+  if (autoPlaying) {
+    autoPlaying = false;
+    paused = false;
+    btn.textContent = 'Auto Play';
+    btn.classList.remove('playing');
+    pauseBtn.textContent = 'Pause';
+    pauseBtn.disabled = true;
+    document.getElementById('btnRoll').disabled = false;
+    return;
+  }
+  autoPlaying = true;
+  paused = false;
+  btn.textContent = 'Stop';
+  btn.classList.add('playing');
+  pauseBtn.textContent = 'Pause';
+  pauseBtn.disabled = false;
+  document.getElementById('btnRoll').disabled = true;
+
+  while (autoPlaying) {
+    if (paused) {
+      await sleep(100);
+      continue;
+    }
+    await doRound();
+    if (!autoPlaying) break;
+    const delay = Math.max(getSpeed() * 0.3, 50);
+    await sleep(delay);
+  }
+}
+
+function togglePause() {
+  if (!autoPlaying) return;
+  paused = !paused;
+  const pauseBtn = document.getElementById('btnPause');
+  pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+  if (paused) {
+    document.getElementById('btnRoll').disabled = false;
+  } else {
+    document.getElementById('btnRoll').disabled = true;
+  }
+}
+
+// ===== Reset =====
+function resetGame() {
+  autoPlaying = false;
+  paused = false;
+  animating = false;
+  const btn = document.getElementById('btnAuto');
+  btn.textContent = 'Auto Play';
+  btn.classList.remove('playing');
+  document.getElementById('btnPause').textContent = 'Pause';
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnRoll').disabled = false;
+
+  const n = parseInt(document.getElementById('stationCount').value);
+  playerState = createInitialState(n);
+  controlState = createInitialState(n);
+  stationConfigs = createDefaultConfigs(n);
+  releaseRate = 6;
+  document.getElementById('releaseRate').value = '6';
+  defectsEnabled = false;
+  defectDifficulty = 'easy';
+  document.getElementById('defectsToggle').checked = false;
+  document.getElementById('defectDifficulty').value = 'easy';
+  document.getElementById('defectsSub').style.display = 'none';
+  budgetEnabled = false;
+  budgetDifficulty = 'easy';
+  document.getElementById('budgetToggle').checked = false;
+  document.getElementById('budgetDifficulty').value = 'easy';
+  document.getElementById('budgetSub').style.display = 'none';
+  showControl = true;
+  document.getElementById('showControlToggle').checked = true;
+  document.getElementById('scrapCard').style.display = 'none';
+  diceControlEnabled = false;
+  randomReducerEnabled = false;
+  diceMode = 'normal';
+  document.getElementById('dmNormal').checked = true;
+  document.getElementById('diceModeDesc').textContent = 'standard 1-6 dice, no interventions';
+  bufferControlEnabled = false;
+  document.getElementById('bufferControlToggle').checked = false;
+
+  buildDOM();
+  renderDice();
+  renderBowls();
+  renderStats();
+  renderFinished();
+  renderComparison();
+  updateBudgetDisplay();
+  initChart();
+}
+
+function changeStationCount() {
+  resetGame();
+}
+
+// ===== Toggle Rules =====
+function toggleRules() {
+  const box = document.getElementById('rulesBox');
+  const btn = document.getElementById('rulesBtn');
+  box.classList.toggle('open');
+  btn.textContent = box.classList.contains('open') ? 'Hide Rules & Strategy' : 'Show Rules & Strategy';
+}
+
+// ===== Init =====
+resetGame();
+</script>
+
+</body>
+</html>
