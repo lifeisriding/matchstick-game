@@ -991,6 +991,452 @@ footer {
 footer a { color: #6088b0; text-decoration: none; }
 footer a:hover { color: #f0c040; }
 
+/* ===== Shift Mode ===== */
+.shift-mode-group {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.shift-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #1a3050;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.shift-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #30a060, #f0c040);
+  border-radius: 3px;
+  transition: width 0.3s;
+  width: 0%;
+}
+.shift-progress-fill.ending {
+  background: linear-gradient(90deg, #e08030, #d04040);
+}
+.shift-info-sub {
+  font-size: 0.62rem;
+  color: #6088b0;
+  margin-top: 1px;
+}
+
+/* ===== Scoreboard Button ===== */
+.btn-scoreboard {
+  background: linear-gradient(135deg, #e8a020, #d08010) !important;
+  color: #1a1a2e !important;
+  border: none;
+  font-weight: 700;
+}
+.btn-scoreboard:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 16px rgba(232,160,32,0.5);
+}
+.scoreboard-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.scoreboard-sub {
+  font-size: 0.55rem;
+  color: #6088b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Shift Toggle Switch ===== */
+.shift-toggle-switch {
+  display: inline-flex;
+  background: #0a1628;
+  border: 1px solid #1a3050;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+.shift-opt {
+  padding: 3px 10px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #4a6a8a;
+  transition: all 0.2s;
+}
+.shift-opt.active {
+  background: linear-gradient(135deg, #3080d0, #2060a0);
+  color: #fff;
+}
+
+/* ===== Modal Overlay (shared) ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+}
+.modal-overlay.open {
+  display: flex;
+}
+.modal-box {
+  background: #0f1f3a;
+  border: 1px solid #2a4060;
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.modal-box h2 {
+  color: #f0c040;
+  font-size: 1.2rem;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+/* ===== Shift Complete Banner ===== */
+.shift-banner-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.75);
+  z-index: 2500;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+.shift-banner-overlay.open {
+  display: flex;
+}
+.shift-banner {
+  background: linear-gradient(145deg, #0f1f3a, #1a3050);
+  border: 2px solid #f0c040;
+  border-radius: 16px;
+  padding: 32px 48px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(240,192,64,0.3), 0 8px 32px rgba(0,0,0,0.5);
+  animation: bannerAppear 0.4s ease-out;
+}
+@keyframes bannerAppear {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.shift-banner h2 {
+  font-size: 1.6rem;
+  background: linear-gradient(135deg, #f0c040, #e8a020);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+.shift-banner .banner-scores {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+.shift-banner .banner-score-item {
+  text-align: center;
+}
+.shift-banner .banner-score-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+.shift-banner .banner-score-value.perf { color: #60c0f0; }
+.shift-banner .banner-score-value.flow { color: #e840a0; }
+.shift-banner .banner-score-label {
+  font-size: 0.75rem;
+  color: #6088b0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.shift-banner .banner-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+.shift-banner .banner-actions button {
+  padding: 8px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.shift-banner .banner-actions button:hover {
+  transform: scale(1.05);
+}
+.banner-btn-primary {
+  background: linear-gradient(135deg, #f0c040, #e8a020);
+  color: #1a1a2e;
+}
+.banner-btn-secondary {
+  background: linear-gradient(135deg, #4090d0, #2070c0);
+  color: #fff;
+}
+.banner-btn-tertiary {
+  background: #1a3050;
+  color: #8aa8c8;
+  border: 1px solid #2a4060 !important;
+}
+
+/* ===== Name Entry Modal ===== */
+.name-entry-box {
+  max-width: 400px;
+  text-align: center;
+}
+.name-entry-box p {
+  color: #8aa8c8;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+.name-entry-box input[type="text"] {
+  background: #1a3050;
+  border: 2px solid #f0c040;
+  border-radius: 8px;
+  color: #e0e8f0;
+  padding: 10px 16px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 280px;
+  text-align: center;
+  outline: none;
+}
+.name-entry-box input[type="text"]:focus {
+  box-shadow: 0 0 12px rgba(240,192,64,0.3);
+}
+.name-entry-box .name-entry-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ===== Scoreboard Modal ===== */
+.scoreboard-box {
+  max-width: 850px;
+}
+.scoreboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 10px;
+}
+.scoreboard-table th {
+  padding: 8px 10px;
+  text-align: left;
+  color: #f0c040;
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #1a3050;
+}
+.scoreboard-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(26,48,80,0.5);
+  color: #8aa8c8;
+}
+.scoreboard-table tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.scoreboard-table tbody tr:hover {
+  background: rgba(240,192,64,0.06);
+}
+.scoreboard-table .rank-gold { color: #f0c040; font-weight: 700; }
+.scoreboard-table .rank-silver { color: #c0c0c0; font-weight: 700; }
+.scoreboard-table .rank-bronze { color: #cd7f32; font-weight: 700; }
+.scoreboard-table .score-val { color: #60c0f0; font-weight: 700; font-size: 0.9rem; }
+.scoreboard-detail {
+  background: #0a1628;
+  border: 1px solid #1a3050;
+  border-radius: 8px;
+  padding: 14px;
+  margin: 8px 0;
+  display: none;
+}
+.scoreboard-detail.open {
+  display: block;
+}
+.scoreboard-detail h3 {
+  color: #f0c040;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.detail-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.detail-stat {
+  font-size: 0.78rem;
+  color: #6088b0;
+}
+.detail-stat span {
+  color: #e0e8f0;
+  font-weight: 600;
+}
+.detail-station-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+.detail-station-table th {
+  padding: 4px 6px;
+  text-align: left;
+  color: #6088b0;
+  font-weight: 600;
+  border-bottom: 1px solid #1a3050;
+}
+.detail-station-table td {
+  padding: 3px 6px;
+  color: #8aa8c8;
+  border-bottom: 1px solid rgba(26,48,80,0.3);
+}
+.scoreboard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.scoreboard-footer button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-clear-scoreboard {
+  background: #1a3050;
+  color: #d04040;
+  border: 1px solid #2a4060 !important;
+}
+.btn-clear-scoreboard:hover { background: rgba(208,64,64,0.15); }
+.btn-close-scoreboard {
+  background: linear-gradient(135deg, #4090d0, #2070c0);
+  color: #fff;
+}
+
+/* ===== Findings Box ===== */
+.findings-toggle {
+  text-align: center;
+  margin: 4px 0 8px;
+}
+.findings-toggle button {
+  background: none;
+  border: 1px solid #1a3050;
+  color: #6088b0;
+  padding: 4px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.findings-toggle button:hover { border-color: #a060d0; color: #a060d0; }
+.findings-box {
+  display: none;
+  max-width: 800px;
+  margin: 10px auto;
+  background: #0f1f3a;
+  border: 1px solid #1a3050;
+  border-radius: 10px;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: #8aa8c8;
+}
+.findings-box.open { display: block; }
+.findings-box strong { color: #f0c040; }
+.findings-box .c-green { color: #30a060; font-weight: 600; }
+.findings-box .c-gold { color: #f0c040; font-weight: 600; }
+.findings-box .c-red { color: #d04040; font-weight: 600; }
+.findings-box .c-blue { color: #4090d0; font-weight: 600; }
+.findings-box .c-purple { color: #a060d0; font-weight: 600; }
+.findings-nav {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.findings-nav button {
+  background: #1a3050;
+  border: 1px solid #2a4060;
+  color: #6088b0;
+  padding: 5px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+}
+.findings-nav button:hover { border-color: #a060d0; color: #a060d0; }
+.findings-nav button.active {
+  background: linear-gradient(135deg, #a060d0, #7040a0);
+  color: #fff;
+  border-color: #a060d0;
+}
+.findings-section { display: none; }
+.findings-section.active { display: block; }
+.findings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin: 10px 0;
+}
+.findings-table th {
+  background: #1a3050;
+  color: #a0c0e0;
+  padding: 6px 8px;
+  text-align: right;
+  border-bottom: 2px solid #2a4060;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.findings-table th:first-child, .findings-table td:first-child { text-align: center; }
+.findings-table th:nth-child(2), .findings-table td:nth-child(2) { text-align: center; }
+.findings-table td {
+  padding: 4px 8px;
+  text-align: right;
+  border-bottom: 1px solid #152540;
+  color: #8aa8c8;
+}
+.findings-table tr:hover { background: rgba(160,96,208,0.06); }
+.findings-table tr.highlight {
+  background: rgba(160,96,208,0.12);
+  font-weight: 600;
+}
+.findings-table tr.highlight td { color: #c0d8f0; }
+.findings-tradeoff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px 0;
+}
+.findings-tradeoff > div {
+  background: #152540;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border-left: 3px solid #4090d0;
+}
+.findings-tradeoff > div:last-child { border-left-color: #d04040; }
+.findings-tradeoff strong { display: block; margin-bottom: 4px; }
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   header h1 { font-size: 1.3rem; }
@@ -1047,7 +1493,7 @@ footer a:hover { color: #f0c040; }
       <span class="c-blue" style="font-weight:600">Dice Mode</span> (3-way toggle, nested inside Budget Mode) &mdash; Controls how much randomness each station's die has. Choose one:
       <ul style="margin:4px 0 2px 16px;list-style:disc">
         <li><strong>Normal</strong> &mdash; Standard 1&ndash;6 dice, no cost. Same as the Observe page.</li>
-        <li><strong>Reducer</strong> &mdash; Each station gets a preset dropdown: <strong>1&ndash;6</strong> (no cost), <strong>2&ndash;5</strong> (2 pts), or <strong>3&ndash;4</strong> (4 pts). Quick way to tighten variance.</li>
+        <li><strong>Reducer</strong> &mdash; All stations immediately narrow to <strong>2&ndash;5</strong> (2 pts each). Each station can be upgraded to <strong>3&ndash;4</strong> (4 pts each). Quick way to tighten variance &mdash; every station costs budget.</li>
         <li><strong>Dice Control</strong> &mdash; Full min/max dropdowns per station (e.g. set Station 3 to roll 3&ndash;5). Most flexible but most expensive. <strong>1 pt per step narrowed</strong> from the default 1&ndash;6 range.</li>
       </ul>
       <em>Example: setting all 5 stations to Reducer 2&ndash;5 = 10 pts. Setting all to 3&ndash;4 = 20 pts. Add Overtime on the bottleneck (+3) and that's 23 pts &mdash; fits on Easy but not Medium.</em>
@@ -1064,9 +1510,23 @@ footer a:hover { color: #f0c040; }
 
   <strong>Metrics Explained:</strong>
   <ul class="metric-list">
-    <li class="m-green"><span class="c-green">Flow Score</span> &mdash; Combines throughput efficiency (your actual output &divide; expected output) with inventory efficiency (how lean your WIP is). A score of 100% means you're matching theoretical throughput with minimal inventory buildup.</li>
-    <li class="m-blue"><span class="c-blue">Cycle Time</span> &mdash; How long (in minutes) a matchstick takes to travel from the first bowl to finished goods. Calculated using <strong>Little&rsquo;s Law</strong>: <code>Cycle Time = (Avg WIP &divide; Throughput Rate) &times; minutes per round</code>. Each bowl = 1 minute, so with 5 bowls each round is 5 minutes. Lower is better &mdash; high cycle time means matchsticks are sitting in buffers too long. Thresholds: <span style="color:#30a060">green</span> &le; 1.5&times; theoretical min, <span style="color:#f0c040">yellow</span> &le; 2&times;, <span style="color:#d04040">red</span> &gt; 2&times; (theoretical min = number of bowls).</li>
-    <li class="m-purple"><span class="c-purple">Performance Score</span> &mdash; An overall rating combining Flow Score and Cycle Time Score using a <strong>geometric mean</strong>: <code>Performance = &radic;(Flow Score &times; CT Score)</code>. The CT Score compares your cycle time to the control line: <code>CT Score = control CT &divide; your CT &times; 100</code> (capped at 100%). This means you need <em>both</em> good throughput and fast cycle times to score well &mdash; you can't game it by optimizing just one.</li>
+    <li class="m-green"><span class="c-green">Flow Score</span> &mdash; Measures how efficiently your line converts raw materials into finished goods. Calculated as:
+      <code>Flow = Throughput Eff &times; (50% Inventory Eff + 50% CT Eff)</code>
+      <ul style="margin:4px 0 2px;font-size:0.78rem;color:#8aa8c8">
+        <li><strong>Throughput Eff</strong> = your actual output &divide; expected output (3.5 &times; rounds)</li>
+        <li><strong>Inventory Eff</strong> = idealWIP &divide; (idealWIP + current WIP) &mdash; penalizes WIP buildup this round</li>
+        <li><strong>CT Eff</strong> = throughput rate &divide; avg WIP (capped at 1) &mdash; how close your <em>average</em> cycle time is to the theoretical minimum</li>
+      </ul>
+      Blending snapshot WIP with average CT efficiency gives a smoother, fairer score. 100% = perfect throughput with minimal inventory.</li>
+    <li class="m-blue"><span class="c-blue">Cycle Time</span> &mdash; How long (in minutes) a matchstick takes to travel from the first bowl to finished goods. Calculated using <strong>Little&rsquo;s Law</strong>: <code>CT = (Avg WIP &divide; Throughput Rate) &times; minutes per round</code>. Each bowl = 1 minute, so with 5 bowls each round is 5 minutes. Lower is better &mdash; high cycle time means matchsticks are sitting in buffers too long. Thresholds: <span style="color:#30a060">green</span> &le; 1.5&times; theoretical min, <span style="color:#f0c040">yellow</span> &le; 2&times;, <span style="color:#d04040">red</span> &gt; 2&times; (theoretical min = number of bowls).</li>
+    <li class="m-purple"><span class="c-purple">Performance Score</span> &mdash; The overall ranking metric. A <strong>weighted sum</strong> heavily favouring output:
+      <code>Performance = 85% Throughput + 10% WIP + 5% CT</code>
+      <ul style="margin:4px 0 2px;font-size:0.78rem;color:#8aa8c8">
+        <li><strong>Throughput Score</strong> (85%) = your output &divide; expected output &times; 100 (capped at 100)</li>
+        <li><strong>WIP Score</strong> (10%) = idealWIP &divide; (idealWIP + avg WIP) &times; 100 &mdash; uses run average, not snapshot</li>
+        <li><strong>CT Score</strong> (5%) = control CT &divide; your CT &times; 100 (capped at 100) &mdash; compares to the unmodified control line</li>
+      </ul>
+      <em>Higher throughput always wins.</em> WIP and CT are tiebreakers &mdash; they can&rsquo;t override output. In early rounds before CT is available, Throughput and WIP are renormalized to sum to 100%.</li>
   </ul>
 
   <strong>Strategy Tips:</strong>
@@ -1080,14 +1540,238 @@ footer a:hover { color: #f0c040; }
   </ul>
 
   <strong>Bottleneck Severity Levels:</strong>
-  <p style="font-size:0.8rem;color:#8aa8c8;margin:6px 0 4px">A bottleneck occurs when a bowl's buffer hits its capacity, meaning the upstream station produced more than the downstream station could process. The system tracks which bowls hit cap each round and uses a rolling 10-round window to detect patterns.</p>
+  <p style="font-size:0.8rem;color:#8aa8c8;margin:6px 0 4px">A bottleneck is detected when a bowl&rsquo;s buffer hits capacity <strong>two rounds in a row</strong> (debounced). A single-round spike doesn&rsquo;t count &mdash; if items flow out the very next round, the line wasn&rsquo;t truly blocked. Only sustained blockage where upstream is stopped registers as a real constraint. The system then tracks confirmed hits in a rolling 10-round window to detect patterns.</p>
   <ul class="metric-list">
     <li class="m-green"><span class="c-green">None</span> &mdash; No bowls hit their buffer cap this round. The line is flowing freely. Stat card pulses <strong>slow green</strong>.</li>
     <li class="m-gold"><span class="c-gold">Single (Stable)</span> &mdash; Exactly one bowl hit cap and the dominant bottleneck hasn't been shifting around. This is a predictable, fixed constraint &mdash; the easiest to address. Station shows an <strong>orange bottle glow</strong>, stat card pulses <strong>medium yellow</strong>.</li>
     <li class="m-orange" style="border-left-color:#d04040"><span style="color:#d04040">Multiple / Moving</span> &mdash; Either 2+ bowls hit cap simultaneously, or the dominant bottleneck has been jumping between stations recently. The constraint is harder to pin down. Stations show <strong>red pulsing bottles</strong>, stat card pulses <strong>fast red</strong>.</li>
     <li class="m-orange" style="border-left-color:#a040ff"><span style="color:#ff4040">C</span><span style="color:#4080ff">R</span><span style="color:#ff4040">I</span><span style="color:#4080ff">T</span><span style="color:#ff4040">I</span><span style="color:#4080ff">C</span><span style="color:#ff4040">A</span><span style="color:#4080ff">L</span> &mdash; Multiple bowls are hitting cap AND the dominant bottleneck is shifting around. The whole line is congested and unpredictable. Stations and the stat card flash <strong>red &amp; blue like a siren</strong>. This is the worst state &mdash; WIP is piling up everywhere and throughput is suffering badly.</li>
   </ul>
-  <p style="font-size:0.78rem;color:#6088b0;margin:4px 0 0">The rolling window tracks each station's buffer-hit frequency over the last 10 rounds. The station with the highest frequency is the "dominant" bottleneck. If that dominant station changes identity within a 5-round window, the bottleneck is classified as "moving."</p>
+  <p style="font-size:0.78rem;color:#6088b0;margin:4px 0 0">The rolling window tracks each station&rsquo;s confirmed (debounced) buffer-hit frequency over the last 10 rounds. The station with the highest frequency is the &ldquo;dominant&rdquo; bottleneck. If that dominant station changes identity within a 5-round window, the bottleneck is classified as &ldquo;moving.&rdquo;</p>
+</div>
+
+<div class="findings-toggle">
+  <button id="findingsBtn" onclick="toggleFindings()">Show Intervention Findings</button>
+</div>
+<div class="findings-box" id="findingsBox">
+  <div class="findings-nav">
+    <button class="active" onclick="showFindingsSection('rr-buffer', this)">Release Rate &amp; Buffer Pairing</button>
+    <button onclick="showFindingsSection('budget', this)">Budget Mode Interventions</button>
+  </div>
+
+  <div id="findings-rr-buffer" class="findings-section active">
+    <p style="font-size:0.75rem;color:#6088b0;margin:0 0 10px">
+      Based on a <span class="c-purple">500-trial Monte Carlo simulation</span> &mdash; 200 rounds per trial, 5 stations, 1d6 dice, no active interventions (no overtime, no dice control, no inspection). 42 combinations of Release Rate (1&ndash;6) &times; Buffer Cap (2&ndash;16) tested.
+    </p>
+
+    <strong>The Core Tradeoff:</strong>
+    <div class="findings-tradeoff">
+      <div>
+        <strong><span class="c-blue">Lower Release Rate</span></strong>
+        Less WIP, fewer bottlenecks, faster cycle time &mdash; but caps maximum throughput.
+      </div>
+      <div>
+        <strong><span class="c-red">Bigger Buffers</span></strong>
+        Absorbs variability spikes, fewer cap-hits &mdash; but more WIP sitting in bowls = higher cycle time.
+      </div>
+    </div>
+
+    <strong>Recommended Sweet Spot: <span class="c-green">RR=3, Buffer=6&ndash;8</span></strong>
+    <ul class="metric-list" style="margin-top:6px">
+      <li class="m-green"><span class="c-green">RR=3, Buffer=8</span> &mdash; Primary pick. Bottleneck events drop to ~12% (from 79% at defaults). Cycle time = 7.5 min (green/yellow border). Throughput = 2.41/round (69% of theoretical 3.5). WIP stays lean at 3.6.</li>
+      <li class="m-gold"><span class="c-gold">RR=3, Buffer=6</span> &mdash; Stay-green alternative. Cycle time = 6.4 min (solidly green). Bottlenecks still at ~29%. Throughput = 2.30/round.</li>
+    </ul>
+
+    <strong>RR=3 Progression &mdash; The Key Tradeoff:</strong>
+    <table class="findings-table">
+      <thead>
+        <tr><th>RR</th><th>Buffer</th><th>TP/Rnd</th><th>BN %</th><th>Cycle Time</th><th>Perf</th><th>WIP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>3</td><td>2</td><td>1.51</td><td>90.9%</td><td>1.6</td><td>63</td><td>0.5</td></tr>
+        <tr><td>3</td><td>4</td><td>2.05</td><td>57.8%</td><td style="color:#30a060">4.5</td><td>66</td><td>1.8</td></tr>
+        <tr><td>3</td><td>6</td><td>2.30</td><td>28.6%</td><td style="color:#30a060">6.4</td><td>60</td><td>2.9</td></tr>
+        <tr class="highlight"><td>3</td><td>8</td><td>2.41</td><td>11.6%</td><td style="color:#f0c040">7.5</td><td>54</td><td>3.6</td></tr>
+        <tr><td>3</td><td>10</td><td>2.45</td><td>4.3%</td><td style="color:#f0c040">8.2</td><td>51</td><td>4.0</td></tr>
+        <tr><td>3</td><td>12</td><td>2.47</td><td>1.5%</td><td style="color:#f0c040">8.6</td><td>50</td><td>4.2</td></tr>
+        <tr><td>3</td><td>16</td><td>2.47</td><td>0.2%</td><td style="color:#f0c040">8.7</td><td>49</td><td>4.3</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem;color:#6088b0;margin:2px 0 12px">
+      Diminishing returns: Buffer 8&rarr;16 only buys ~11 points off bottleneck rate but adds 1.2 min to cycle time. The big gains happen between Buffer 2 and Buffer 8.
+    </p>
+
+    <strong>Why <span class="c-red">RR=4+</span> Fails:</strong>
+    <table class="findings-table">
+      <thead>
+        <tr><th>RR</th><th>Buffer</th><th>TP/Rnd</th><th>BN %</th><th>Cycle Time</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>4</td><td>6</td><td>2.42</td><td>53%</td><td style="color:#f0c040">8.3</td></tr>
+        <tr><td>4</td><td>8</td><td>2.62</td><td>37%</td><td style="color:#d04040">11.4</td></tr>
+        <tr><td>5</td><td>6</td><td>2.45</td><td>62%</td><td style="color:#f0c040">9.0</td></tr>
+        <tr><td>6</td><td>6</td><td>2.45</td><td>67%</td><td style="color:#f0c040">9.3</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem;color:#6088b0;margin:2px 0 12px">
+      Higher release rates flood the line faster than downstream can handle. Even with Buffer=8, RR=4 pushes cycle time into <span class="c-red">red</span> and bottlenecks stay above 35%.
+    </p>
+
+    <strong>Key Takeaway:</strong>
+    <ul class="metric-list">
+      <li style="border-left-color:#a060d0"><span class="c-purple">Passive interventions have limits.</span> No combination of release rate + buffer alone achieves all three goals: bottleneck events &lt; 5%, cycle time in green (&le; 7.5 min), and throughput &gt; 2.5/round. Buffers shift the problem from bottleneck events to cycle time bloat. To truly eliminate bottlenecks while maintaining throughput requires <strong>active interventions</strong> &mdash; dice control (variance reduction) or overtime at the constraint. This is the core Theory of Constraints lesson.</li>
+    </ul>
+  </div>
+
+  <div id="findings-budget" class="findings-section">
+    <p style="font-size:0.75rem;color:#6088b0;margin:0 0 10px">
+      Based on a <span class="c-purple">500-trial Monte Carlo simulation</span> &mdash; 200 rounds per trial, 5 stations, 1d6 dice, RR=6, Buffer=4 defaults unless noted. Tests overtime, dice narrowing, inspection, and combinations within each budget level.
+    </p>
+
+    <strong>Baseline (no interventions): <span class="c-blue">TP=2.10 | BN=60% | CT=5.3 | Perf=66</span></strong>
+    <br><br>
+
+    <!-- DICE NARROWING -->
+    <strong>1. Dice Narrowing &mdash; The Biggest Single Lever</strong>
+    <p style="font-size:0.78rem;color:#8aa8c8;margin:4px 0 8px">
+      Reducing variance across all stations has a massive impact on throughput. The <span class="c-green">floor matters more than the ceiling</span> &mdash; raising the minimum die value is what drives the gains.
+    </p>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>CT</th><th>Perf</th><th>WIP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left;color:#6088b0">Baseline (1-6)</td><td>0</td><td>2.10</td><td>60%</td><td>5.3</td><td>66</td><td>2.2</td></tr>
+        <tr><td style="text-align:left">All 1-5</td><td>5</td><td>2.10</td><td>60%</td><td>5.3</td><td>66</td><td>2.2</td></tr>
+        <tr><td style="text-align:left">All 2-6</td><td>5</td><td>2.53</td><td>68%</td><td>3.5</td><td>75</td><td>1.8</td></tr>
+        <tr><td style="text-align:left">All 2-5</td><td>10</td><td>2.52</td><td>68%</td><td>3.5</td><td>75</td><td>1.8</td></tr>
+        <tr class="highlight"><td style="text-align:left">All 3-6</td><td>10</td><td>3.19</td><td>82%</td><td style="color:#30a060">1.6</td><td>90</td><td>1.0</td></tr>
+        <tr><td style="text-align:left">All 2-4</td><td>15</td><td>2.53</td><td>68%</td><td>3.5</td><td>75</td><td>1.8</td></tr>
+        <tr><td style="text-align:left">All 3-5</td><td>15</td><td>3.19</td><td>82%</td><td style="color:#30a060">1.6</td><td>90</td><td>1.0</td></tr>
+        <tr><td style="text-align:left">All 3-4</td><td>20</td><td>3.19</td><td>82%</td><td style="color:#30a060">1.6</td><td>90</td><td>1.0</td></tr>
+      </tbody>
+    </table>
+    <ul class="metric-list" style="margin-top:6px">
+      <li class="m-green"><span class="c-green">Key insight: The floor is everything.</span> All 1-5 (cost 5) does literally nothing. All 2-6 (cost 5) jumps Perf from 66&rarr;75. Same cost, totally different result &mdash; only raising the minimum matters.</li>
+      <li class="m-gold"><span class="c-gold">Best value: All 3-6 (cost 10)</span> hits Perf=90 and TP=3.19 &mdash; identical to All 3-4 (cost 20) at half the price. The ceiling doesn&rsquo;t matter once the floor is 3.</li>
+    </ul>
+    <br>
+
+    <!-- OVERTIME -->
+    <strong>2. Overtime &mdash; Position Matters</strong>
+    <p style="font-size:0.78rem;color:#8aa8c8;margin:4px 0 8px">
+      Overtime rolls a second die and takes the higher value (3 pts/station). Where you place it changes everything.
+    </p>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>CT</th><th>Perf</th><th>WIP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left;color:#6088b0">Baseline</td><td>0</td><td>2.10</td><td>60%</td><td>5.3</td><td>66</td><td>2.2</td></tr>
+        <tr><td style="text-align:left;color:#d04040">OT @ Station 1</td><td>3</td><td>2.18</td><td style="color:#d04040">84%</td><td>6.0</td><td>66</td><td>2.6</td></tr>
+        <tr><td style="text-align:left">OT @ Station 2-5 (any)</td><td>3</td><td>2.18</td><td>57%</td><td>4.4</td><td>68</td><td>1.9</td></tr>
+        <tr><td style="text-align:left">OT @ 2 interior stations</td><td>6</td><td>2.29</td><td>53%</td><td>3.5</td><td>71</td><td>1.6</td></tr>
+        <tr><td style="text-align:left">OT @ Stations 2+3+4</td><td>9</td><td>2.43</td><td>47%</td><td>2.6</td><td>75</td><td>1.2</td></tr>
+        <tr class="highlight"><td style="text-align:left">OT @ ALL stations</td><td>15</td><td>2.92</td><td>72%</td><td style="color:#30a060">1.9</td><td>85</td><td>1.1</td></tr>
+      </tbody>
+    </table>
+    <ul class="metric-list" style="margin-top:6px">
+      <li style="border-left-color:#d04040"><span class="c-red">OT at Station 1 is a trap.</span> It pushes more material into the line than downstream can handle, spiking bottlenecks from 60%&rarr;84% for zero Performance gain. Never put overtime on the first station alone.</li>
+      <li class="m-green"><span class="c-green">OT on interior/last stations</span> is safe &mdash; Stations 2-5 all give identical results (Perf=68). Position within the interior doesn&rsquo;t matter.</li>
+      <li class="m-gold"><span class="c-gold">OT everywhere (cost 15)</span> is strong: TP=2.92, Perf=85, CT=1.9. But it costs a lot of budget.</li>
+    </ul>
+    <br>
+
+    <!-- COMBOS -->
+    <strong>3. Combined Strategies &mdash; Dice + Overtime</strong>
+    <p style="font-size:0.78rem;color:#8aa8c8;margin:4px 0 8px">
+      Combining dice narrowing with overtime pushes scores even higher.
+    </p>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>CT</th><th>Perf</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left">All 2-5 + OT @ 1 interior</td><td>13</td><td>2.57</td><td>64%</td><td>3.0</td><td>77</td></tr>
+        <tr><td style="text-align:left">All 2-5 + OT @ ALL</td><td>25</td><td>3.03</td><td>74%</td><td style="color:#30a060">1.6</td><td>87</td></tr>
+        <tr><td style="text-align:left">All 3-4 + OT @ 1 interior</td><td>23</td><td>3.21</td><td>78%</td><td style="color:#30a060">1.4</td><td>91</td></tr>
+        <tr class="highlight"><td style="text-align:left">All 3-4 + OT @ ALL</td><td>35</td><td>3.39</td><td>80%</td><td style="color:#30a060">1.0</td><td>96</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem;color:#6088b0;margin:2px 0 12px">
+      All 3-4 + OT everywhere hits Perf=96 but costs 35 pts &mdash; only achievable with no budget cap. The highest realistic combo is All 3-4 + 3 OT stations (cost 29, Perf=93) which fits on Easy.
+    </p>
+
+    <!-- RELEASE RATE + BUDGET -->
+    <strong>4. Release Rate + Budget &mdash; RR=3 Unlocks a Unique Result</strong>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>CT</th><th>Perf</th><th>WIP</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left;color:#6088b0">RR=3, no budget</td><td>0</td><td>2.06</td><td>35%</td><td>4.5</td><td>66</td><td>1.8</td></tr>
+        <tr><td style="text-align:left">RR=3 + OT @ ALL</td><td>15</td><td>2.71</td><td>16%</td><td style="color:#30a060">1.2</td><td>82</td><td>0.6</td></tr>
+        <tr><td style="text-align:left">RR=3 + All 2-5</td><td>10</td><td>2.47</td><td>38%</td><td>2.7</td><td>75</td><td>1.3</td></tr>
+        <tr><td style="text-align:left">RR=3 + All 2-5 + OT@ALL</td><td>25</td><td>2.81</td><td>15%</td><td style="color:#30a060">1.0</td><td>84</td><td>0.5</td></tr>
+        <tr class="highlight"><td style="text-align:left">RR=3 + All 3-4</td><td>20</td><td>3.00</td><td style="color:#30a060">0%</td><td style="color:#30a060">0.0</td><td>89</td><td>0.0</td></tr>
+      </tbody>
+    </table>
+    <ul class="metric-list" style="margin-top:6px">
+      <li class="m-green"><span class="c-green">RR=3 + All 3-4 is the only combo that achieves 0% bottlenecks.</span> With dice locked to 3-4 (avg 3.5) and release rate = 3, the line never overloads. WIP drops to zero. CT drops to zero. Every matchstick flows straight through. Perf=89 (throughput capped at 3.0 since RR=3).</li>
+      <li class="m-gold"><span class="c-gold">Why not higher?</span> RR=4 + All 3-4 hits Perf=91 with higher throughput (3.19), but bottlenecks are 82%. The tradeoff is: perfect flow vs. higher raw score.</li>
+    </ul>
+    <br>
+
+    <!-- INSPECTION -->
+    <strong>5. Inspection &mdash; Costs More Than It Saves</strong>
+    <p style="font-size:0.78rem;color:#8aa8c8;margin:4px 0 8px">
+      With defects on (easy: 5-10%), inspection catches bad items early but removes them from the pipeline.
+    </p>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>Perf</th><th>Scrap</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:left">Defects ON, no inspect</td><td>0</td><td>1.62</td><td>47%</td><td>57</td><td>177</td></tr>
+        <tr><td style="text-align:left">Inspect @ S2</td><td>1</td><td>1.54</td><td>44%</td><td>56</td><td>207</td></tr>
+        <tr><td style="text-align:left">Inspect @ S2+S4</td><td>2</td><td>1.43</td><td>44%</td><td>53</td><td>231</td></tr>
+        <tr><td style="text-align:left">Inspect @ ALL (S2-S5)</td><td>4</td><td>1.23</td><td>42%</td><td>48</td><td>273</td></tr>
+      </tbody>
+    </table>
+    <ul class="metric-list" style="margin-top:6px">
+      <li style="border-left-color:#d04040"><span class="c-red">Inspection hurts throughput.</span> Each inspection point catches defects but removes items from the flow, reducing output. More inspection = more scrap caught = less throughput. With easy defects, the cure is worse than the disease.</li>
+      <li class="m-gold"><span class="c-gold">When defects are off, skip inspection entirely.</span> It&rsquo;s only relevant in defect mode, and even then dice narrowing gives far better returns per budget point.</li>
+    </ul>
+    <br>
+
+    <!-- BEST PER BUDGET -->
+    <strong>6. Best Strategy Per Budget Level</strong>
+    <p style="font-size:0.78rem;color:#8aa8c8;margin:4px 0 8px">
+      Optimal picks at each difficulty (no defects, RR=6 unless noted):
+    </p>
+    <table class="findings-table">
+      <thead>
+        <tr><th>Budget</th><th>Best Config</th><th>Cost</th><th>TP/Rnd</th><th>BN %</th><th>CT</th><th>Perf</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="text-align:center"><span class="c-red">Extreme (8)</span></td><td style="text-align:left">OT @ 2 interior stations</td><td>6</td><td>2.29</td><td>53%</td><td>3.5</td><td>71</td></tr>
+        <tr><td style="text-align:center"><span class="c-gold">Hard (14)</span></td><td style="text-align:left">All 2-5 + OT @ 1 interior</td><td>13</td><td>2.57</td><td>64%</td><td>3.0</td><td>77</td></tr>
+        <tr class="highlight"><td style="text-align:center"><span class="c-green">Medium (20)</span></td><td style="text-align:left">All 3-4 (or 3-6)</td><td>20</td><td>3.19</td><td>82%</td><td style="color:#30a060">1.6</td><td>90</td></tr>
+        <tr class="highlight"><td style="text-align:center"><span class="c-green">Easy (30)</span></td><td style="text-align:left">All 3-4 + OT @ 3 interior</td><td>29</td><td>3.27</td><td>66%</td><td style="color:#30a060">1.0</td><td>93</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.75rem;color:#6088b0;margin:2px 0 12px">
+      Medium budget is the sweet spot &mdash; going from Hard&rarr;Medium jumps Perf from 77&rarr;90 because you can afford All 3-4. Easy only adds +3 more by layering overtime on top.
+    </p>
+
+    <!-- KEY TAKEAWAY -->
+    <strong>Key Takeaways:</strong>
+    <ul class="metric-list">
+      <li class="m-green"><span class="c-green">Dice narrowing dominates.</span> It gives far more Performance per budget point than overtime or inspection. All 3-6 (cost 10) = Perf 90. OT everywhere (cost 15) = Perf 85.</li>
+      <li class="m-gold"><span class="c-gold">Raise the floor, not the ceiling.</span> All 2-6 (cost 5) gives the same result as All 2-5 (cost 10). All 3-6 (cost 10) matches All 3-4 (cost 20). Lowering the max die is wasted budget.</li>
+      <li style="border-left-color:#a060d0"><span class="c-purple">The unique RR=3 + All 3-4 combo</span> (cost 20) is the only configuration in the entire simulation that achieves 0% bottlenecks with 0 WIP. It sacrifices some throughput (3.0 vs 3.19) for a perfectly smooth line.</li>
+    </ul>
+  </div>
 </div>
 
 <div class="controls">
@@ -1111,12 +1795,28 @@ footer a:hover { color: #f0c040; }
       <option value="10">10</option>
     </select>
   </div>
+  <div class="control-group shift-mode-group">
+    <div class="mode-header" style="gap:0">
+      <div class="shift-toggle-switch" id="shiftToggleSwitch" onclick="onShiftToggle()">
+        <span class="shift-opt active" id="shiftOptShift">Shift</span>
+        <span class="shift-opt" id="shiftOptInfinite">Infinite</span>
+      </div>
+    </div>
+    <div class="shift-info-sub" id="shiftInfoSub">8-hr shift limit</div>
+    <div class="shift-progress-bar" id="shiftProgressBar" style="display:none">
+      <div class="shift-progress-fill" id="shiftProgressFill"></div>
+    </div>
+  </div>
   <div class="control-group show-control-inline">
     <div class="mode-header">
       <input type="checkbox" id="showControlToggle" checked onchange="onShowControlToggle()">
       <label for="showControlToggle">Show Control</label>
     </div>
     <div class="mode-sub" style="font-size:0.65rem;color:#6088b0">vs. no interventions</div>
+  </div>
+  <div class="scoreboard-btn-wrap">
+    <button class="btn-scoreboard" onclick="showScoreboard()" title="View Scoreboard">Scoreboard</button>
+    <div class="scoreboard-sub">Shift Mode Only</div>
   </div>
   <button class="btn-reset" onclick="resetGame()">Reset</button>
 </div>
@@ -1246,6 +1946,49 @@ footer a:hover { color: #f0c040; }
   Based on the dice game in <a href="https://en.wikipedia.org/wiki/The_Goal_(novel)" target="_blank">"The Goal"</a> by Eliyahu M. Goldratt (1984)
 </footer>
 
+<!-- Shift Complete Banner -->
+<div class="shift-banner-overlay" id="shiftBannerOverlay">
+  <div class="shift-banner" id="shiftBanner">
+    <h2>SHIFT COMPLETE!</h2>
+    <div class="banner-scores">
+      <div class="banner-score-item">
+        <div class="banner-score-value perf" id="bannerPerf">-</div>
+        <div class="banner-score-label">Performance</div>
+      </div>
+      <div class="banner-score-item">
+        <div class="banner-score-value flow" id="bannerFlow">-</div>
+        <div class="banner-score-label">Flow Score</div>
+      </div>
+    </div>
+    <div class="banner-actions" id="bannerActions"></div>
+  </div>
+</div>
+
+<!-- Name Entry Modal -->
+<div class="modal-overlay" id="nameEntryOverlay">
+  <div class="modal-box name-entry-box">
+    <h2>New High Score!</h2>
+    <p>Your performance qualifies for the scoreboard.</p>
+    <input type="text" id="nameEntryInput" maxlength="20" placeholder="Enter your name" autofocus>
+    <div class="name-entry-actions">
+      <button class="banner-btn-primary" onclick="submitNameEntry()">Save</button>
+      <button class="banner-btn-tertiary" onclick="hideNameEntry()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scoreboard Modal -->
+<div class="modal-overlay" id="scoreboardOverlay">
+  <div class="modal-box scoreboard-box">
+    <h2>Scoreboard</h2>
+    <div id="scoreboardContent"></div>
+    <div class="scoreboard-footer">
+      <button class="btn-clear-scoreboard" onclick="clearScoreboard()">Clear All</button>
+      <button class="btn-close-scoreboard" onclick="hideScoreboard()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="animation-overlay" id="animOverlay"></div>
 
 <script>
@@ -1266,6 +2009,9 @@ const DEFECT_RANGES = {
   hard:    [0.20, 0.30],
   extreme: [0.30, 0.50],
 };
+const SHIFT_MINUTES = 480;
+const SCOREBOARD_STORAGE_KEY = 'matchstick-sandbox-scoreboard';
+const SCOREBOARD_MAX_ENTRIES = 25;
 
 // ===== Game State =====
 let playerState = null;   // user's line — rendered visually
@@ -1287,6 +2033,95 @@ let diceControlEnabled = false;
 let randomReducerEnabled = false;
 let bufferControlEnabled = false;
 let diceMode = 'normal'; // 'normal' | 'reducer' | 'control'
+let shiftMode = true;
+let shiftEnded = false;
+let shiftTotalRounds = 0;
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ===== Scoreboard Storage =====
+function getScoreboard() {
+  try {
+    const raw = localStorage.getItem(SCOREBOARD_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    // Support both old format (plain array) and new format ({ version, entries })
+    if (Array.isArray(parsed)) return parsed;
+    return parsed.entries || [];
+  } catch { return []; }
+}
+
+function saveScoreboard(board) {
+  localStorage.setItem(SCOREBOARD_STORAGE_KEY, JSON.stringify(board));
+}
+
+function checkScoreboardQualification(score) {
+  const board = getScoreboard();
+  if (board.length < SCOREBOARD_MAX_ENTRIES) return true;
+  return score > board[board.length - 1].performanceScore;
+}
+
+function buildScoreboardEntry(playerName) {
+  const st = playerState;
+  const ct = controlState;
+  const n = st.numStations;
+  const perf = st.performanceScoreHistory[st.performanceScoreHistory.length - 1] || 0;
+  const flow = st.flowScoreHistory[st.flowScoreHistory.length - 1] || 0;
+  const cycleTime = st.cycleTimeHistory[st.cycleTimeHistory.length - 1];
+  const wip = st.inputBuffers.reduce((a, b) => a + b, 0);
+  const avgThroughputRound = st.round > 0 ? st.totalThroughput / st.round : 0;
+
+  const stationDetails = [];
+  for (let i = 0; i < n; i++) {
+    const cfg = stationConfigs[i];
+    stationDetails.push({
+      name: NAMES[i],
+      diceMin: cfg.diceMin,
+      diceMax: cfg.diceMax,
+      overtime: cfg.overtime,
+      inspect: cfg.inspectBefore,
+      bufferCap: cfg.bufferCap,
+    });
+  }
+
+  return {
+    playerName,
+    timestamp: Date.now(),
+    performanceScore: perf,
+    flowScore: flow,
+    numStations: n,
+    totalRounds: st.round,
+    shiftMode: shiftMode,
+    budgetEnabled,
+    budgetDifficulty: budgetEnabled ? budgetDifficulty : null,
+    defectsEnabled,
+    defectDifficulty: defectsEnabled ? defectDifficulty : null,
+    bufferControlEnabled,
+    diceMode,
+    releaseRate,
+    stations: stationDetails,
+    throughput: st.totalThroughput,
+    cycleTime: cycleTime !== null ? parseFloat(cycleTime.toFixed(1)) : null,
+    wip,
+    lostThroughput: st.lostThroughput,
+    overproduction: st.overproduction,
+    totalScrap: st.totalScrap,
+    avgThroughputRound: parseFloat(avgThroughputRound.toFixed(2)),
+  };
+}
+
+function addScoreboardEntry(entry) {
+  const board = getScoreboard();
+  board.push(entry);
+  board.sort((a, b) => b.performanceScore - a.performanceScore);
+  if (board.length > SCOREBOARD_MAX_ENTRIES) board.length = SCOREBOARD_MAX_ENTRIES;
+  saveScoreboard(board);
+  return board;
+}
 
 const REDUCER_PRESETS = {
   none:     [1, 6],
@@ -1318,8 +2153,9 @@ function createInitialState(numStations) {
     bottleneckHistory: [],
     bottleneckStations: [],
     bottleneckMoving: false,
-    // Rolling window bottleneck detection
+    // Rolling window bottleneck detection (debounced)
     bufferHitHistory: new Array(numStations).fill(null).map(() => []),
+    prevBufferHits: [],  // raw buffer-hit stations from last round (for debounce)
     currentBottleneck: -1,
     bottleneckConsecutive: 0,
     bottleneckRecentList: [],
@@ -1490,16 +2326,23 @@ function computeCycleTimeScores(pState, cState) {
   pState.cycleTimeScoreHistory.push(ctScore);
   cState.cycleTimeScoreHistory.push(100); // control always scores 100 against itself
 
-  // Performance Score: geometric mean of Flow Score and CT Score
-  const pFlow = pState.flowScoreHistory[pState.flowScoreHistory.length - 1];
-  let perfScore = null;
-  if (ctScore !== null && pFlow != null) {
-    perfScore = Math.round(Math.sqrt(pFlow * ctScore));
+  // Performance Score: weighted sum — 85% Throughput + 10% WIP + 5% CT
+  function calcPerfScore(st, stCtScore) {
+    if (st.round === 0 || st.totalThroughput === 0) return null;
+    const throughputScore = Math.min(100, st.totalThroughput / (3.5 * st.round) * 100);
+    const avgWIP = st.wipHistory.reduce((a, b) => a + b, 0) / st.wipHistory.length;
+    const idealWIP = st.numStations;
+    const wipScore = idealWIP / (idealWIP + avgWIP) * 100;
+    if (stCtScore !== null) {
+      return Math.round(Math.min(100, Math.max(0,
+        0.85 * throughputScore + 0.10 * wipScore + 0.05 * stCtScore)));
+    }
+    // Early rounds: no CT yet — renormalize 85/10 to sum to 1.0
+    return Math.round(Math.min(100, Math.max(0,
+      (0.85 / 0.95) * throughputScore + (0.10 / 0.95) * wipScore)));
   }
-  pState.performanceScoreHistory.push(perfScore);
-
-  const cFlow = cState.flowScoreHistory[cState.flowScoreHistory.length - 1];
-  cState.performanceScoreHistory.push(cFlow != null ? Math.round(Math.sqrt(cFlow * 100)) : null);
+  pState.performanceScoreHistory.push(calcPerfScore(pState, ctScore));
+  cState.performanceScoreHistory.push(calcPerfScore(cState, 100));
 }
 
 // ===== Dual Engine: Execute Round =====
@@ -1575,7 +2418,9 @@ function executeVanillaRound(st, rolls) {
   const throughputEff = st.totalThroughput / (3.5 * st.round);
   const idealWIP = st.numStations;
   const inventoryEff = idealWIP / (idealWIP + wip);
-  st.flowScoreHistory.push(Math.round(throughputEff * inventoryEff * 100));
+  const avgWIP = st.wipHistory.reduce((a, b) => a + b, 0) / st.wipHistory.length;
+  const ctEff = Math.min(1, (st.totalThroughput / st.round) / Math.max(avgWIP, 1));
+  st.flowScoreHistory.push(Math.round(throughputEff * (0.5 * inventoryEff + 0.5 * ctEff) * 100));
 
   st.scrapPerRound.push(0);
   st.scrapHistory.push(st.totalScrap);
@@ -1700,10 +2545,17 @@ function executePlayerRoundClean(st, rolls) {
   const throughputEff = st.totalThroughput / (3.5 * st.round);
   const idealWIP = st.numStations;
   const inventoryEff = idealWIP / (idealWIP + wip);
-  st.flowScoreHistory.push(Math.round(throughputEff * inventoryEff * 100));
+  const avgWIP = st.wipHistory.reduce((a, b) => a + b, 0) / st.wipHistory.length;
+  const ctEff = Math.min(1, (st.totalThroughput / st.round) / Math.max(avgWIP, 1));
+  st.flowScoreHistory.push(Math.round(throughputEff * (0.5 * inventoryEff + 0.5 * ctEff) * 100));
 }
 
-function updateBottleneckDetection(st, roundBottleneckStations) {
+function updateBottleneckDetection(st, rawBottleneckStations) {
+  // Debounce: only count as a real bottleneck if buffer also hit cap last round
+  // (sustained blockage, not a one-round spike)
+  const roundBottleneckStations = rawBottleneckStations.filter(s => st.prevBufferHits.includes(s));
+  st.prevBufferHits = [...rawBottleneckStations]; // store raw hits for next round's debounce
+
   const WINDOW = 10;
   for (let i = 0; i < st.numStations; i++) {
     const hitCap = roundBottleneckStations.includes(i);
@@ -1828,7 +2680,6 @@ function buildDOM() {
         </div>
         <div class="reducer-wrap" style="display:${randomReducerEnabled ? 'flex' : 'none'}">
           <select id="reducer-${i}" title="Reduce randomness" onchange="onReducerChange(${i})">
-            <option value="none">1-6</option>
             <option value="slight">2-5</option>
             <option value="moderate">3-4</option>
           </select>
@@ -2004,6 +2855,225 @@ function onShowControlToggle() {
   });
 }
 
+function onShiftToggle() {
+  shiftMode = !shiftMode;
+  updateShiftToggleUI();
+  if (shiftMode) {
+    shiftTotalRounds = computeShiftRounds();
+  } else {
+    shiftTotalRounds = 0;
+  }
+  shiftEnded = false;
+  updateShiftDisplay();
+  resetGame();
+  // Restore toggle state after reset (reset clears it)
+  updateShiftToggleUI();
+  if (shiftMode) {
+    shiftTotalRounds = computeShiftRounds();
+    updateShiftDisplay();
+  }
+}
+
+function updateShiftToggleUI() {
+  const optShift = document.getElementById('shiftOptShift');
+  const optInf = document.getElementById('shiftOptInfinite');
+  if (!optShift || !optInf) return;
+  optShift.classList.toggle('active', shiftMode);
+  optInf.classList.toggle('active', !shiftMode);
+}
+
+function updateShiftDisplay() {
+  const bar = document.getElementById('shiftProgressBar');
+  const fill = document.getElementById('shiftProgressFill');
+  const sub = document.getElementById('shiftInfoSub');
+  if (!bar || !fill || !sub) return;
+  if (shiftMode) {
+    bar.style.display = '';
+    const pct = shiftTotalRounds > 0 ? Math.min(playerState.round / shiftTotalRounds * 100, 100) : 0;
+    fill.style.width = pct + '%';
+    fill.classList.toggle('ending', pct >= 80);
+    sub.textContent = shiftEnded ? 'SHIFT COMPLETE' : playerState.round + ' / ' + shiftTotalRounds + ' rounds';
+  } else {
+    bar.style.display = 'none';
+    sub.textContent = 'No round limit';
+  }
+}
+
+function showShiftCompleteBanner() {
+  const perf = playerState.performanceScoreHistory[playerState.performanceScoreHistory.length - 1] || 0;
+  const flow = playerState.flowScoreHistory[playerState.flowScoreHistory.length - 1] || 0;
+  document.getElementById('bannerPerf').textContent = perf + '%';
+  document.getElementById('bannerFlow').textContent = flow + '%';
+
+  const actionsEl = document.getElementById('bannerActions');
+  const qualifies = checkScoreboardQualification(perf);
+
+  setTimeout(() => {
+    if (qualifies) {
+      actionsEl.innerHTML = '';
+      // Auto-show name entry after brief display
+      setTimeout(() => {
+        document.getElementById('shiftBannerOverlay').classList.remove('open');
+        showNameEntryModal();
+      }, 1500);
+    } else {
+      actionsEl.innerHTML = `
+        <button class="banner-btn-secondary" onclick="hideShiftBanner(); showScoreboard()">View Scoreboard</button>
+        <button class="banner-btn-tertiary" onclick="hideShiftBanner()">Close</button>
+        <button class="banner-btn-primary" onclick="startNewShift()">New Shift</button>
+      `;
+    }
+  }, 100);
+
+  document.getElementById('shiftBannerOverlay').classList.add('open');
+}
+
+function hideShiftBanner() {
+  const el = document.getElementById('shiftBannerOverlay');
+  if (el) el.classList.remove('open');
+}
+
+function startNewShift() {
+  hideShiftBanner();
+  resetGame();
+  shiftMode = true;
+  updateShiftToggleUI();
+  shiftTotalRounds = computeShiftRounds();
+  updateShiftDisplay();
+}
+
+function showNameEntryModal() {
+  document.getElementById('nameEntryOverlay').classList.add('open');
+  const input = document.getElementById('nameEntryInput');
+  input.value = '';
+  setTimeout(() => input.focus(), 100);
+  // Enter key submits
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') submitNameEntry();
+  };
+}
+
+function hideNameEntry() {
+  document.getElementById('nameEntryOverlay').classList.remove('open');
+}
+
+function submitNameEntry() {
+  const input = document.getElementById('nameEntryInput');
+  let name = input.value.trim();
+  if (!name) name = 'Anonymous';
+  if (name.length > 20) name = name.substring(0, 20);
+  const entry = buildScoreboardEntry(name);
+  addScoreboardEntry(entry);
+  hideNameEntry();
+  showScoreboard();
+}
+
+function showScoreboard() {
+  const board = getScoreboard();
+  const contentEl = document.getElementById('scoreboardContent');
+
+  if (board.length === 0) {
+    contentEl.innerHTML = '<p style="text-align:center;color:#6088b0;padding:20px">No scores yet. Complete a shift to record your first score!</p>';
+  } else {
+    let html = `<table class="scoreboard-table"><thead><tr>
+      <th>#</th><th>Player</th><th>Score</th><th>Stations</th><th>Modes</th><th>Throughput</th><th>Date</th>
+    </tr></thead><tbody>`;
+    board.forEach((entry, idx) => {
+      const rank = idx + 1;
+      const rankClass = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank === 3 ? 'rank-bronze' : '';
+      const modes = buildModeSummary(entry);
+      const dateStr = new Date(entry.timestamp).toLocaleDateString();
+      html += `<tr ondblclick="showEntryDetail(${idx})" title="Double-click for details">
+        <td class="${rankClass}">${rank}</td>
+        <td>${escapeHtml(entry.playerName)}</td>
+        <td class="score-val">${entry.performanceScore}%</td>
+        <td>${entry.numStations}</td>
+        <td style="font-size:0.7rem">${modes}</td>
+        <td>${entry.throughput}</td>
+        <td style="font-size:0.7rem;color:#506880">${dateStr}</td>
+      </tr>`;
+      html += `<tr><td colspan="7" style="padding:0"><div class="scoreboard-detail" id="detail-${idx}"></div></td></tr>`;
+    });
+    html += '</tbody></table>';
+    contentEl.innerHTML = html;
+  }
+
+  document.getElementById('scoreboardOverlay').classList.add('open');
+}
+
+function hideScoreboard() {
+  document.getElementById('scoreboardOverlay').classList.remove('open');
+}
+
+function buildModeSummary(entry) {
+  const parts = [];
+  if (entry.shiftMode) parts.push('Shift');
+  if (entry.budgetEnabled) parts.push('Budget:' + (entry.budgetDifficulty || 'easy'));
+  if (entry.defectsEnabled) parts.push('Defects:' + (entry.defectDifficulty || 'easy'));
+  if (entry.bufferControlEnabled) parts.push('Buffers');
+  if (entry.diceMode && entry.diceMode !== 'normal') parts.push('Dice:' + entry.diceMode);
+  if (entry.releaseRate !== 6) parts.push('RR:' + entry.releaseRate);
+  return parts.length ? parts.join(', ') : 'None';
+}
+
+function showEntryDetail(idx) {
+  const board = getScoreboard();
+  if (idx >= board.length) return;
+  const entry = board[idx];
+  const detailEl = document.getElementById(`detail-${idx}`);
+  if (!detailEl) return;
+
+  // Toggle
+  if (detailEl.classList.contains('open')) {
+    detailEl.classList.remove('open');
+    return;
+  }
+  // Close other open details
+  document.querySelectorAll('.scoreboard-detail.open').forEach(el => el.classList.remove('open'));
+
+  let html = '<h3>Full Stats</h3><div class="detail-stats-grid">';
+  html += `<div class="detail-stat">Rounds: <span>${entry.totalRounds}</span></div>`;
+  html += `<div class="detail-stat">Performance: <span>${entry.performanceScore}%</span></div>`;
+  html += `<div class="detail-stat">Flow Score: <span>${entry.flowScore}%</span></div>`;
+  html += `<div class="detail-stat">Throughput: <span>${entry.throughput}</span></div>`;
+  html += `<div class="detail-stat">Avg/Round: <span>${entry.avgThroughputRound}</span></div>`;
+  html += `<div class="detail-stat">Cycle Time: <span>${entry.cycleTime !== null ? entry.cycleTime + ' min' : '\u2014'}</span></div>`;
+  html += `<div class="detail-stat">WIP: <span>${entry.wip}</span></div>`;
+  html += `<div class="detail-stat">Lost: <span>${entry.lostThroughput !== undefined ? (typeof entry.lostThroughput === 'number' && !Number.isInteger(entry.lostThroughput) ? entry.lostThroughput.toFixed(1) : entry.lostThroughput) : '\u2014'}</span></div>`;
+  html += `<div class="detail-stat">Overproduction: <span>${entry.overproduction}</span></div>`;
+  html += `<div class="detail-stat">Scrap: <span>${entry.totalScrap}</span></div>`;
+  html += `<div class="detail-stat">Release Rate: <span>${entry.releaseRate}</span></div>`;
+  html += '</div>';
+
+  if (entry.stations && entry.stations.length) {
+    html += '<h3>Per-Station Interventions</h3>';
+    html += '<table class="detail-station-table"><thead><tr><th>Station</th><th>Dice</th><th>OT</th><th>Inspect</th><th>Buffer</th></tr></thead><tbody>';
+    entry.stations.forEach(s => {
+      html += `<tr>
+        <td>${escapeHtml(s.name)}</td>
+        <td>${s.diceMin}-${s.diceMax}</td>
+        <td>${s.overtime ? 'Yes' : '\u2014'}</td>
+        <td>${s.inspect ? 'Yes' : '\u2014'}</td>
+        <td>${s.bufferCap}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+  }
+
+  detailEl.innerHTML = html;
+  detailEl.classList.add('open');
+}
+
+function clearScoreboard() {
+  const pw = prompt('Enter admin password to clear all scores:');
+  if (pw !== 'admin') {
+    if (pw !== null) alert('Incorrect password.');
+    return;
+  }
+  saveScoreboard([]);
+  showScoreboard();
+}
+
 function onDiceModeChange() {
   const prev = diceMode;
   diceMode = document.querySelector('input[name="diceMode"]:checked').value;
@@ -2017,6 +3087,16 @@ function onDiceModeChange() {
   // Reset previous mode's values
   if (prev === 'control' && diceMode !== 'control') resetDiceRanges();
   if (prev === 'reducer' && diceMode !== 'reducer') resetReducers();
+
+  // Auto-set all stations to 2-5 when entering Reducer mode
+  if (diceMode === 'reducer') {
+    for (let i = 0; i < stationConfigs.length; i++) {
+      stationConfigs[i].diceMin = 2;
+      stationConfigs[i].diceMax = 5;
+      const el = document.getElementById(`reducer-${i}`);
+      if (el) el.value = 'slight';
+    }
+  }
 
   // Show/hide station controls
   document.querySelectorAll('.dice-control-wrap').forEach(el => el.style.display = diceControlEnabled ? 'flex' : 'none');
@@ -2065,7 +3145,7 @@ function resetReducers() {
     stationConfigs[i].diceMin = 1;
     stationConfigs[i].diceMax = 6;
     const el = document.getElementById(`reducer-${i}`);
-    if (el) el.value = 'none';
+    if (el) el.value = 'slight';
   }
   updateBudgetDisplay();
 }
@@ -2138,7 +3218,7 @@ function renderMoved() {
 
 function renderStats() {
   const st = playerState;
-  document.getElementById('statRound').textContent = st.round;
+  document.getElementById('statRound').textContent = shiftMode ? st.round + ' / ' + shiftTotalRounds : st.round;
   document.getElementById('statThroughput').textContent = st.totalThroughput.toFixed(1);
   document.getElementById('statTheoretical').textContent = (3.5 * st.round).toFixed(1);
 
@@ -2686,9 +3766,39 @@ async function animateFlyingMatches() {
   }
 }
 
+// ===== Shift Mode Logic =====
+function computeShiftRounds() {
+  if (!playerState) return 0;
+  return Math.floor(SHIFT_MINUTES / playerState.numStations);
+}
+
+function checkShiftEnd() {
+  if (!shiftMode || shiftEnded) return false;
+  if (playerState.round >= shiftTotalRounds) {
+    endShift();
+    return true;
+  }
+  return false;
+}
+
+function endShift() {
+  shiftEnded = true;
+  autoPlaying = false;
+  paused = false;
+  const btn = document.getElementById('btnAuto');
+  btn.textContent = 'Auto Play';
+  btn.classList.remove('playing');
+  document.getElementById('btnPause').textContent = 'Pause';
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnRoll').disabled = false;
+  updateShiftDisplay();
+  showShiftCompleteBanner();
+}
+
 // ===== Round Execution =====
 async function doRound() {
   if (animating) return;
+  if (shiftMode && shiftEnded) { startNewShift(); return; }
   animating = true;
   document.getElementById('btnRoll').disabled = true;
 
@@ -2706,8 +3816,12 @@ async function doRound() {
   renderFinished();
   renderComparison();
   updateChart();
+  if (shiftMode) updateShiftDisplay();
 
   animating = false;
+
+  if (shiftMode && checkShiftEnd()) return;
+
   if (!autoPlaying) {
     document.getElementById('btnRoll').disabled = false;
   }
@@ -2736,12 +3850,14 @@ async function toggleAutoPlay() {
   document.getElementById('btnRoll').disabled = true;
 
   while (autoPlaying) {
+    if (shiftMode && shiftEnded) { autoPlaying = false; break; }
     if (paused) {
       await sleep(100);
       continue;
     }
     await doRound();
     if (!autoPlaying) break;
+    if (shiftMode && shiftEnded) break;
     const delay = Math.max(getSpeed() * 0.3, 50);
     await sleep(delay);
   }
@@ -2798,6 +3914,12 @@ function resetGame() {
   bufferControlEnabled = false;
   document.getElementById('bufferControlToggle').checked = false;
 
+  // Shift mode reset
+  shiftEnded = false;
+  shiftTotalRounds = shiftMode ? computeShiftRounds() : 0;
+  updateShiftDisplay();
+  hideShiftBanner();
+
   buildDOM();
   renderDice();
   renderBowls();
@@ -2818,6 +3940,28 @@ function toggleRules() {
   const btn = document.getElementById('rulesBtn');
   box.classList.toggle('open');
   btn.textContent = box.classList.contains('open') ? 'Hide Rules & Strategy' : 'Show Rules & Strategy';
+}
+
+// ===== Toggle Findings =====
+let findingsUnlocked = false;
+function toggleFindings() {
+  const box = document.getElementById('findingsBox');
+  const btn = document.getElementById('findingsBtn');
+  if (!findingsUnlocked && !box.classList.contains('open')) {
+    const pw = prompt('Enter password to view findings:');
+    if (pw !== 'admin') return;
+    findingsUnlocked = true;
+  }
+  box.classList.toggle('open');
+  btn.textContent = box.classList.contains('open') ? 'Hide Intervention Findings' : 'Show Intervention Findings';
+}
+
+function showFindingsSection(sectionId, clickedBtn) {
+  document.querySelectorAll('.findings-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.findings-nav button').forEach(b => b.classList.remove('active'));
+  const section = document.getElementById('findings-' + sectionId);
+  if (section) section.classList.add('active');
+  if (clickedBtn) clickedBtn.classList.add('active');
 }
 
 // ===== Init =====

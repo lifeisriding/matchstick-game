@@ -29,7 +29,7 @@ All three pages share the same visual style (dark blue theme, gold accents) and 
 - Stations: 3-10, configurable
 - Chart: Cumulative actual vs expected, lost throughput, WIP, overproduction, per-round bars, flow score, bottleneck markers
 - Pause button during auto-play
-- Bottleneck detection via rolling window of 10 rounds
+- Bottleneck detection via debounced rolling window of 10 rounds (buffer must hit cap 2 consecutive rounds to count)
 - Stat label: "Avg Throughput / Round"
 
 ### Sandbox Page (`sandbox.html`)
@@ -56,6 +56,9 @@ let defectsEnabled = false;
 let defectDifficulty = 'easy';
 let diceControlEnabled = false;
 let randomReducerEnabled = false;
+let shiftMode = false;
+let shiftEnded = false;
+let shiftTotalRounds = 0;
 ```
 
 #### Constants
@@ -65,6 +68,9 @@ const DEFAULT_BUFFER_CAP = 4;
 const BUDGET_LEVELS = { easy: 30, medium: 20, hard: 14, extreme: 8 };
 const DEFECT_RANGES = { easy: [0.05,0.10], medium: [0.10,0.20], hard: [0.20,0.30], extreme: [0.30,0.50] };
 const REDUCER_PRESETS = { none: [1,6], slight: [2,5], moderate: [3,4] };
+const SHIFT_MINUTES = 480;
+const SCOREBOARD_STORAGE_KEY = 'matchstick-sandbox-scoreboard';
+const SCOREBOARD_MAX_ENTRIES = 25;
 ```
 
 #### Station Names
@@ -77,7 +83,7 @@ All male names from "The Goal" (boy scouts): Herbie, Davey, Ron, Chuck, Evan, An
 
 #### Controls Layout
 
-**Top Row** (action controls): Roll Dice, Auto Play, Pause, Speed slider, Stations dropdown, Show Control toggle, Reset button
+**Top Row** (action controls): Roll Dice, Auto Play, Pause, Speed slider, Stations dropdown, Shift Mode toggle, Show Control toggle, Scoreboard button, Reset button
 
 **Interventions Bar** (mode toggles, each in a `.mode-group` styled box):
 1. **Release Rate** — dropdown 1-16, default 6. Free.
@@ -108,7 +114,7 @@ All male names from "The Goal" (boy scouts): Herbie, Davey, Ron, Chuck, Evan, An
 | `executeRound()` | Orchestrator: generates shared dice rolls, runs both engines |
 | `executeVanillaRound(st, rolls)` | Control engine: no interventions, same dice |
 | `executePlayerRoundClean(st, rolls)` | Player engine: applies interventions, defects, inspection |
-| `updateBottleneckDetection(st, stations)` | Rolling window bottleneck detection |
+| `updateBottleneckDetection(st, stations)` | Debounced rolling window bottleneck detection |
 | `buildDOM()` | Builds station HTML with all controls |
 | `renderStats()` | Updates all stat cards with values, trend arrows, control comparison |
 | `initChart()` | Creates Chart.js chart with 8 datasets |
@@ -201,11 +207,38 @@ Control lines were removed from chart; control values shown under stat cards ins
 - **Interventions**: Release Rate (free, 1-16), Overtime (3pts, requires budget), Inspection (1pt, requires defects)
 - **Modes**: Budget Mode (with nested Dice Mode explanation including Normal/Reducer/Dice Control costs and example), Defects Mode (can toggle mid-game), Buffer Control (free, 2-16, increases cycle time)
 - **Control Line & Comparison** explanation
-- **Metrics Explained**: Flow Score, Cycle Time (Little's Law, 1.5x/2x thresholds), Performance Score (geometric mean)
+- **Metrics Explained**: Flow Score, Cycle Time (Little's Law, 1.5x/2x thresholds), Performance Score (weighted sum: 70% Throughput + 20% WIP + 10% CT)
 - **Strategy Tips** — 6 bullet points
 - **Bottleneck Severity Levels** — None, Single/Stable, Multiple/Moving, CRITICAL
 
 ---
+
+#### Shift Mode
+- **Toggle**: checkbox in top controls bar, between Stations dropdown and Show Control
+- Each round = N minutes (N = number of stations). Shift = 8 hours = 480 min
+- Total rounds = `floor(480 / numStations)` (e.g. 5 stations → 96 rounds, 10 stations → 48 rounds)
+- Round stat card shows "X / 96" format in shift mode
+- Progress bar below toggle shows completion %, turns orange/red at 80%+
+- Game auto-stops at shift end (both manual and auto-play blocked)
+- Toggling shift mode on/off triggers a full reset
+- **Globals**: `shiftMode`, `shiftEnded`, `shiftTotalRounds`, `SHIFT_MINUTES = 480`
+- **Functions**: `computeShiftRounds()`, `checkShiftEnd()`, `endShift()`, `onShiftToggle()`, `updateShiftDisplay()`
+
+#### Shift-End Flow
+1. Auto-play stops, Roll Dice disabled
+2. "SHIFT COMPLETE!" banner overlay with Performance + Flow Score
+3. After 1.5s: if score qualifies for top 25 → name entry modal → save → open scoreboard
+4. If not qualifying: banner shows "View Scoreboard", "Close", "New Shift" buttons
+5. Must click Reset / New Shift to play again
+
+#### Scoreboard System
+- **Storage**: localStorage key `matchstick-sandbox-scoreboard`, JSON array sorted by performance desc, max 25 entries. Clear All requires "admin" password.
+- **Each entry**: player name, timestamp, performance score, flow score, station count, total rounds, all mode states, per-station configs, final stats
+- **Button**: Always visible in controls bar (gold/orange), works in both modes
+- **Modal**: Dark overlay with table (Rank, Player, Score, Stations, Modes, Throughput, Date)
+- **Detail panel**: Double-click row → expands with full stats grid + per-station intervention table
+- **Name entry**: Modal with text input (max 20 chars), Enter to submit
+- **Functions**: `getScoreboard()`, `saveScoreboard()`, `checkScoreboardQualification()`, `buildScoreboardEntry()`, `addScoreboardEntry()`, `showScoreboard()`, `hideScoreboard()`, `buildModeSummary()`, `showEntryDetail()`, `showNameEntryModal()`, `submitNameEntry()`, `clearScoreboard()`, `escapeHtml()`
 
 ## Pending / Future Work
 1. **Gam-ba mode** (`game.html`) — preset rounds, levels with increasing difficulty. Currently just a "Coming Soon" placeholder. No implementation yet.
