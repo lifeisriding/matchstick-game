@@ -1261,6 +1261,16 @@ footer a:hover { color: #f0c040; }
 .scoreboard-table .rank-silver { color: #c0c0c0; font-weight: 700; }
 .scoreboard-table .rank-bronze { color: #cd7f32; font-weight: 700; }
 .scoreboard-table .score-val { color: #60c0f0; font-weight: 700; font-size: 0.9rem; }
+.scoreboard-table .just-entered td {
+  background: rgba(240,192,64,0.15);
+}
+.scoreboard-table .just-entered {
+  animation: highlightPulse 1.5s ease-in-out 2;
+}
+@keyframes highlightPulse {
+  0%, 100% { background: transparent; }
+  50% { background: rgba(240,192,64,0.2); }
+}
 .scoreboard-detail {
   background: #0a1628;
   border: 1px solid #1a3050;
@@ -2022,6 +2032,7 @@ let budgetUsed = 0;
 let budgetEnabled = false;
 let budgetDifficulty = 'easy';
 let chart = null;
+let lastSubmittedTimestamp = null;
 let autoPlaying = false;
 let paused = false;
 let animating = false;
@@ -2963,6 +2974,7 @@ function submitNameEntry() {
   if (!name) name = 'Anonymous';
   if (name.length > 20) name = name.substring(0, 20);
   const entry = buildScoreboardEntry(name);
+  lastSubmittedTimestamp = entry.timestamp;
   addScoreboardEntry(entry);
   hideNameEntry();
   showScoreboard();
@@ -2983,7 +2995,8 @@ function showScoreboard() {
       const rankClass = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank === 3 ? 'rank-bronze' : '';
       const modes = buildModeSummary(entry);
       const dateStr = new Date(entry.timestamp).toLocaleDateString();
-      html += `<tr ondblclick="showEntryDetail(${idx})" title="Double-click for details">
+      const justEntered = lastSubmittedTimestamp && entry.timestamp === lastSubmittedTimestamp ? ' just-entered' : '';
+      html += `<tr class="${justEntered}" ondblclick="showEntryDetail(${idx})" title="Double-click for details">
         <td class="${rankClass}">${rank}</td>
         <td>${escapeHtml(entry.playerName)}</td>
         <td class="score-val">${entry.performanceScore}%</td>
@@ -3002,6 +3015,7 @@ function showScoreboard() {
 }
 
 function hideScoreboard() {
+  lastSubmittedTimestamp = null;
   document.getElementById('scoreboardOverlay').classList.remove('open');
 }
 

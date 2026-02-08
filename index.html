@@ -682,8 +682,9 @@ function createInitialState(numStations) {
     bottleneckHistory: [],     // number of full buffers per round
     bottleneckStations: [],    // which stations were bottlenecks last round
     bottleneckMoving: false,   // did bottleneck locations shift this round
-    // Rolling window bottleneck detection
+    // Rolling window bottleneck detection (debounced)
     bufferHitHistory: new Array(numStations).fill(null).map(() => []),
+    prevBufferHits: [],  // raw buffer-hit stations from last round (for debounce)
     currentBottleneck: -1,      // station index of THE bottleneck (-1 = none)
     bottleneckConsecutive: 0,   // how many consecutive rounds same station is THE bottleneck
     bottleneckRecentList: [],   // last 5 bottleneck station indices for "moving" display
@@ -749,10 +750,14 @@ function executeRound() {
   state.overproductionHistory.push(state.overproduction);
   state.overproductionPerRound.push(roundOverproduction);
 
-  // Rolling window bottleneck detection
+  // Rolling window bottleneck detection (debounced)
+  // Only count as real bottleneck if buffer also hit cap last round (sustained blockage)
+  const debouncedStations = roundBottleneckStations.filter(s => state.prevBufferHits.includes(s));
+  state.prevBufferHits = [...roundBottleneckStations]; // store raw hits for next round
+
   const WINDOW = 10;
   for (let i = 0; i < state.numStations; i++) {
-    const hitCap = roundBottleneckStations.includes(i);
+    const hitCap = debouncedStations.includes(i);
     state.bufferHitHistory[i].push(hitCap);
     if (state.bufferHitHistory[i].length > WINDOW) state.bufferHitHistory[i].shift();
   }
@@ -785,8 +790,8 @@ function executeRound() {
   // Determine stable vs moving
   const uniqueRecent = [...new Set(state.bottleneckRecentList)];
   state.bottleneckMoving = uniqueRecent.length > 1 && state.bottleneckConsecutive < 5;
-  state.bottleneckStations = roundBottleneckStations;
-  state.bottleneckHistory.push(roundBottleneckStations.length);
+  state.bottleneckStations = debouncedStations;
+  state.bottleneckHistory.push(debouncedStations.length);
 
   // WIP snapshot
   const wip = state.inputBuffers.reduce((a, b) => a + b, 0);
